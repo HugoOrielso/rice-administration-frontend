@@ -1,45 +1,11 @@
-"use client";
-
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import LoginForm from "@/components/login/LoginForm";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signIn("credentials", {
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Correo o contraseña incorrectos.");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch {
-      setError("Ocurrió un error inesperado. Intenta de nuevo.");
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[1fr_460px]">
 
-      {/* ── LEFT PANEL ── */}
       <div
         className="hidden lg:flex flex-col justify-between p-14 relative overflow-hidden"
         style={{ background: "linear-gradient(145deg, #14532d 0%, #166534 55%, #0f3d1f 100%)" }}
@@ -61,14 +27,14 @@ export default function LoginPage() {
           }}
         />
         {/* Decorative rings */}
-        <div className="absolute -top-20 -right-24 w-80 h-80 rounded-full border border-white/[0.05] pointer-events-none" />
-        <div className="absolute top-12 right-4 w-44 h-44 rounded-full border border-white/[0.05] pointer-events-none" />
-        <div className="absolute -bottom-48 -left-36 w-[500px] h-[500px] rounded-full border border-white/[0.05] pointer-events-none" />
+        <div className="absolute -top-20 -right-24 w-80 h-80 rounded-full border border-white/5 pointer-events-none" />
+        <div className="absolute top-12 right-4 w-44 h-44 rounded-full border border-white/5 pointer-events-none" />
+        <div className="absolute -bottom-48 -left-36 w-125 h-125 rounded-full border border-white/5 pointer-events-none" />
 
         {/* Brand logo */}
         <div className="relative z-10 flex items-center gap-4">
           <div
-            className="w-[52px] h-[52px] rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0"
+            className="w-13 h-13 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0"
             style={{
               background: "#D76924",
               boxShadow: "0 4px 20px rgba(215,105,36,0.45)",
@@ -114,7 +80,7 @@ export default function LoginPage() {
             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
           >
             {[
-              { value: "25+",  label: "Años de experiencia" },
+              { value: "25+", label: "Años de experiencia" },
               { value: "500+", label: "Distribuidores activos" },
               { value: "100%", label: "Calidad certificada" },
             ].map((s) => (
@@ -165,165 +131,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-
-          {/* Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-[11px] font-semibold tracking-[0.08em] uppercase mb-2"
-              style={{ color: "#14532d" }}
-            >
-              Correo electrónico
-            </label>
-            <div className="relative">
-              <span
-                className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "#4a6b52" }}
-              >
-                <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </span>
-              <input
-                id="email"
-                type="email"
-                placeholder="usuario@arrozzulia.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                className="w-full h-[52px] pl-11 pr-4 rounded-xl text-sm bg-white outline-none transition-all border placeholder:text-gray-300"
-                style={{ borderColor: "rgba(22,101,52,0.18)", color: "#14532d" }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#166534";
-                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(22,101,52,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(22,101,52,0.18)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Password */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-[11px] font-semibold tracking-[0.08em] uppercase mb-2"
-              style={{ color: "#14532d" }}
-            >
-              Contraseña
-            </label>
-            <div className="relative">
-              <span
-                className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: "#4a6b52" }}
-              >
-                <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </span>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                className="w-full h-[52px] pl-11 pr-12 rounded-xl text-sm bg-white outline-none transition-all border placeholder:text-gray-300"
-                style={{ borderColor: "rgba(22,101,52,0.18)", color: "#14532d" }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#166534";
-                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(22,101,52,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(22,101,52,0.18)";
-                  e.currentTarget.style.boxShadow = "none";
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors hover:opacity-80"
-                style={{ color: "#4a6b52" }}
-              >
-                {showPassword ? (
-                  <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
-                ) : (
-                  <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                )}
-              </button>
-            </div>
-
-            <a
-              href="/forgot-password"
-              className="block text-right text-xs font-medium mt-2 transition-colors"
-              style={{ color: "#166534" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#D76924")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "#166534")}
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div
-              className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-medium"
-              style={{
-                background: "#fff0e8",
-                border: "1px solid rgba(215,105,36,0.3)",
-                color: "#b95517",
-                animation: "shake 0.4s ease",
-              }}
-              role="alert"
-            >
-              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="shrink-0">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {error}
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-[52px] flex items-center justify-center gap-2.5 rounded-xl text-white text-sm font-semibold tracking-wide transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-px active:translate-y-0"
-            style={{
-              background: "linear-gradient(135deg, #166534 0%, #1e7a3e 100%)",
-              boxShadow: "0 4px 20px rgba(22,101,52,0.35)",
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading)
-                e.currentTarget.style.boxShadow = "0 8px 28px rgba(22,101,52,0.45)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.boxShadow = "0 4px 20px rgba(22,101,52,0.35)";
-            }}
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="3" />
-                  <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                Verificando...
-              </>
-            ) : (
-              "Iniciar sesión"
-            )}
-          </button>
-        </form>
+        <LoginForm />
 
         {/* Divider */}
         <div className="flex items-center gap-3 my-6 text-xs font-medium" style={{ color: "#c0cec3" }}>
@@ -332,27 +140,6 @@ export default function LoginPage() {
           <div className="flex-1 h-px" style={{ background: "rgba(22,101,52,0.1)" }} />
         </div>
 
-        {/* Support */}
-        <a
-          href="mailto:soporte@arrozzulia.com"
-          className="flex items-center justify-center gap-2 rounded-xl text-sm font-medium transition-all border bg-white py-[14px]"
-          style={{ borderColor: "rgba(22,101,52,0.14)", color: "#4a6b52" }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = "#D76924";
-            e.currentTarget.style.color = "#D76924";
-            e.currentTarget.style.background = "#fff7f2";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(22,101,52,0.14)";
-            e.currentTarget.style.color = "#4a6b52";
-            e.currentTarget.style.background = "white";
-          }}
-        >
-          <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          Contactar soporte
-        </a>
 
         <p className="mt-8 text-center text-[11px] leading-relaxed" style={{ color: "#a8bab0" }}>
           © {new Date().getFullYear()} Arroz Zulia · Andina Group<br />
