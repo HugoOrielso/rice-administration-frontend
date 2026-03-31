@@ -40,7 +40,7 @@ export function ProductsSection({ products }: ProductsSectionProps) {
 
   return (
     <>
-      <section id="productos" className="bg-slate-50 scroll-mt-20 py-18 fade-in">
+      <section id="productos" className="bg-slate-50 scroll-mt-20 py-18 ">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">

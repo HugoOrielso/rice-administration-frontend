@@ -21,16 +21,16 @@ export const links: SidebarLink[] = [
     icon: LayoutDashboard,
     roles: ["ADMIN", "OPERATOR"],
   },
-  {
-    href: "/dashboard/inventory",
-    label: "Inventario",
-    icon: FileText,
-    roles: ["ADMIN", "OPERATOR"],
-  },
-  {
-    href: "/dashboard/invoices",
-    label: "Facturas",
-    icon: FileCheck,
-    roles: ["ADMIN", "OPERATOR"],
-  }
+  // {
+  //   href: "/dashboard/inventory",
+  //   label: "Inventario",
+  //   icon: FileText,
+  //   roles: ["ADMIN", "OPERATOR"],
+  // },
+  // {
+  //   href: "/dashboard/invoices",
+  //   label: "Facturas",
+  //   icon: FileCheck,
+  //   roles: ["ADMIN", "OPERATOR"],
+  // }
 ];

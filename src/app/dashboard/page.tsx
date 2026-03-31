@@ -1,9 +1,11 @@
-import React from 'react'
+import AdminOverview from "@/components/dashboard/AdminOverView";
 
-const page = () => {
+export default function DashboardPage() {
   return (
-    <div>page</div>
-  )
+    <main className="min-h-screen bg-slate-50 px-6 py-8 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <AdminOverview />
+      </div>
+    </main>
+  );
 }
-
-export default page
