@@ -2,10 +2,7 @@ name: Build & Deploy to CapRover
 
 on:
   push:
-    branches:       
-        - main
-        - development
-        
+    branches: [main]
   workflow_dispatch: # permite lanzarlo manualmente desde GitHub
 
 jobs:
@@ -29,17 +26,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── 3. Construir el nombre de la imagen ────────────────────────────────
-      #    Formato: ghcr.io/<owner>/<repo>:<sha corto>
+      # ── 3. Construir el nombre de la imagen (todo lowercase) ──────────────────
+      #    Tag fijo: :prod  —  cache separado: :buildcache
       - name: Set image name
         run: |
-          IMAGE="ghcr.io/${{ github.repository_owner }}/$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')"
-          SHA="${{ github.sha }}"
-          echo "IMAGE_NAME=${IMAGE}" >> $GITHUB_ENV
-          echo "IMAGE_TAG=${IMAGE}:${SHA::7}" >> $GITHUB_ENV
-          echo "IMAGE_LATEST=${IMAGE}:latest" >> $GITHUB_ENV
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="ghcr.io/${OWNER}/${REPO}"
+          echo "IMAGE_NAME=${IMAGE}"        >> $GITHUB_ENV
+          echo "IMAGE_PROD=${IMAGE}:prod"   >> $GITHUB_ENV
 
-      # ── 4. Configurar Docker Buildx (multi-platform / caché) ───────────────
+      # ── 4. Configurar Docker Buildx (caché) ───────────────────────────────
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -49,9 +46,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.IMAGE_TAG }}
-            ${{ env.IMAGE_LATEST }}
+          tags: ${{ env.IMAGE_PROD }}
           # Cache entre runs usando ghcr.io como backend
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
           cache-to:   type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
@@ -63,4 +58,4 @@ jobs:
           server: ${{ secrets.CAPROVER_SERVER }}   # https://captain.tudominio.com
           app:    ${{ secrets.CAPROVER_APP }}       # nombre exacto de la app en CapRover
           token:  ${{ secrets.CAPROVER_APP_TOKEN }} # token de la pestaña Deployment
-          image:  ${{ env.IMAGE_TAG }}
+          image:  ${{ env.IMAGE_PROD }}
