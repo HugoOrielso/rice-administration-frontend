@@ -1,11 +1,7 @@
 import {
   LayoutDashboard,
   FileText,
-  Users,
-  UserPlus,
-  FilePlus,
   FileCheck,
-  FolderOpen,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "OPERATOR";
@@ -26,41 +22,15 @@ export const links: SidebarLink[] = [
     roles: ["ADMIN", "OPERATOR"],
   },
   {
-    href: "/dashboard/contracts/create",
-    label: "Crear contrato",
+    href: "/dashboard/inventory",
+    label: "Inventario",
     icon: FileText,
     roles: ["ADMIN", "OPERATOR"],
-    children: [
-      {
-        href: "/dashboard/create-contract/dimcultura",
-        label: "Dimcultura",
-        icon: FilePlus,
-        roles: ["ADMIN", "OPERATOR"],
-      },
-      {
-        href: "/dashboard/create-contract/gruculcol",
-        label: "Gruculcol",
-        icon: FileCheck,
-        roles: ["ADMIN", "OPERATOR"],
-      },
-    ],
   },
   {
-    href: "/dashboard/manage-contracts",
-    label: "Administrar contratos",
-    icon: FolderOpen,
+    href: "/dashboard/invoices",
+    label: "Facturas",
+    icon: FileCheck,
     roles: ["ADMIN", "OPERATOR"],
-  },
-  {
-    href: "/dashboard/users",
-    label: "Usuarios",
-    icon: Users,
-    roles: ["ADMIN"],
-  },
-  {
-    href: "/dashboard/users/create",
-    label: "Crear usuario",
-    icon: UserPlus,
-    roles: ["ADMIN"],
-  },
+  }
 ];

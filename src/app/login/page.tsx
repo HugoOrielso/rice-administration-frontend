@@ -1,4 +1,5 @@
 import LoginForm from "@/components/login/LoginForm";
+import Image from "next/image";
 
 export default function LoginPage() {
 
@@ -34,16 +35,14 @@ export default function LoginPage() {
         {/* Brand logo */}
         <div className="relative z-10 flex items-center gap-4">
           <div
-            className="w-13 h-13 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shrink-0"
+            className="w-13 h-13 rounded-2xl flex items-center justify-center text-2xl font-bold shrink-0"
             style={{
-              background: "#D76924",
               boxShadow: "0 4px 20px rgba(215,105,36,0.45)",
             }}
           >
-            Z
+            <Image src="/assets/logo.png" alt="Arroz Zulia" width={120} height={24} className="bg-transparent" />
           </div>
           <div>
-            <p className="text-white font-bold text-[18px] leading-tight">Arroz Zulia</p>
             <p className="text-white/40 text-xs font-light tracking-wide">Andina Group · Portal Empresarial</p>
           </div>
         </div>

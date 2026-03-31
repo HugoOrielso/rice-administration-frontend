@@ -1,6 +1,6 @@
 export function BenefitsSection() {
   return (
-    <section id="beneficios" className="bg-white py-20">
+    <section id="beneficios" className="bg-white py-20 scroll-mt-24  ">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">

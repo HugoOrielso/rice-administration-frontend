@@ -15,6 +15,7 @@ export default function HomePage() {
         'Arroz fortificado con ácido fólico y riboflavina, elaborado bajo altos estándares de calidad para acompañar la mesa de las familias colombianas.',
       image: '/assets/product-1.png',
       presentation: 'Presentación: 900 g',
+      price: 6500
     },
     {
       id: 2,
@@ -23,6 +24,7 @@ export default function HomePage() {
         'Arroz blanco tipo gourmet, seleccionado por expertos arroceros del Norte de Santander para ofrecer excelente textura, sabor y rendimiento.',
       image: '/assets/product-2.png',
       presentation: 'Presentación: 500 g',
+      price: 5500
     },
   ];
 

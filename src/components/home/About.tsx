@@ -1,6 +1,6 @@
 export function AboutSection() {
   return (
-    <section id="nosotros" className="py-20">
+    <section id="nosotros" className="py-20  scroll-mt-24 ">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:px-8">
         <div>
           <span className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">
