@@ -1,40 +1,24 @@
 "use client";
 
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
-import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
-  const { data: session } = useSession();
   const router = useRouter();
 
   const handleLogout = async () => {
     const toastId = toast.loading("Cerrando sesión...");
 
     try {
-      // revocar refresh token en backend
-      if (session?.refreshToken) {
-        await api.post(
-          "/auth/logout",
-          {},
-          {
-            headers: {
-              "x-refresh-token": session.refreshToken,
-            },
-          }
-        );
-      }
-
-      // cerrar sesión Auth.js sin redirección automática
-      const result = await signOut({
+      const res = await signOut({
         redirect: false,
         redirectTo: "/login",
       });
 
       toast.success("Sesión cerrada correctamente.", { id: toastId });
-      router.replace(result.url);
+      router.replace(res.url || "/login");
     } catch (error) {
       console.error(error);
       toast.error("Error al cerrar sesión. Intenta de nuevo.", { id: toastId });
