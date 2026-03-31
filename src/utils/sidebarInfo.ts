@@ -1,7 +1,5 @@
 import {
   LayoutDashboard,
-  FileText,
-  FileCheck,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "OPERATOR";

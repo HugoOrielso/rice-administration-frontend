@@ -5,9 +5,7 @@ import {
     ArrowUpRight,
     Boxes,
     DollarSign,
-    FileText,
     Package2,
-    TrendingUp,
 } from "lucide-react";
 
 interface InvoiceItem {
