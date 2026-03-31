@@ -24,7 +24,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN  }}
 
       # ── 3. Construir el nombre de la imagen (todo lowercase) ──────────────────
       #    Tag fijo: :prod  —  cache separado: :buildcache
