@@ -5,9 +5,9 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json yarn.lock ./
 
-RUN npm ci
+RUN yarn install --frozen-lockfile
 
 
 # ─── Stage 2: Builder ────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+RUN yarn build
 
 
 # ─── Stage 3: Runner (producción) ────────────────────────────────────────────
@@ -43,7 +43,7 @@ RUN addgroup --system --gid 1001 nodejs \
 # Copiamos solo lo necesario del build
 COPY --from=builder /app/public ./public
 
-# Next.js standalone output (ver nota abajo)
+# Next.js standalone output
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
