@@ -17,7 +17,10 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+ARG BUILD_ID
+ENV BUILD_ID=${BUILD_ID}
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
