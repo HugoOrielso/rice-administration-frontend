@@ -1,21 +1,26 @@
 import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 
-const api = axios.create({
+export const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-});
+  headers: { "Content-Type": "application/json" },
+})
 
-api.interceptors.request.use(async (config) => {
-  const session = await getSession();
+axiosClient.interceptors.request.use(async (config) => {
+  const session = await getSession()
 
-  if (session?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.accessToken}`;
+  if ((session)?.error?.includes("RefreshFailed")) {
+    await signOut({ callbackUrl: "/login" })
+    return Promise.reject(new Error("Session expired"))
   }
 
-  return config;
-});
+  const token = (session)?.accessToken
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  
+  return config
+})
 
-api.interceptors.response.use(
+axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
@@ -33,7 +38,7 @@ api.interceptors.response.use(
             }
           );
         }
-      } catch {}
+      } catch { }
 
       await signOut({ callbackUrl: "/login" });
     }
@@ -42,4 +47,31 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+
+
+const publicRoutes = ["/auth/register", "/login", "/", "/auth/reset", "/auth/forgot-password"]
+
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const requestUrl = error.config?.url ?? ""
+    const isPublicRoute = publicRoutes.some((route) => requestUrl.includes(route))
+    const status = error.response?.status
+
+    if (status === 401 && !isPublicRoute) {
+      if (typeof window !== "undefined") {
+        localStorage.clear()
+        sessionStorage.clear()
+        document.cookie.split(";").forEach((cookie) => {
+          const name = cookie.split("=")[0].trim()
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`
+        })
+      }
+      await signOut({ callbackUrl: "/login" })
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+export default axiosClient;

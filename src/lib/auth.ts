@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: { signIn: "/login" },
-  session: { strategy: "jwt" },
+
 
   cookies: {
     sessionToken: {
@@ -90,7 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-
+  session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -170,14 +170,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       session.error = token.error as string | undefined;
-
-      if (token.error?.startsWith("RefreshFailed")) {
-        session.accessToken = undefined;
-        session.refreshToken = undefined;
-      } else {
-        session.accessToken = token.accessToken as string | undefined;
-        session.refreshToken = token.refreshToken as string | undefined;
-      }
 
       return session;
     },
