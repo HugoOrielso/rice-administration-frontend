@@ -3,7 +3,7 @@ name: Build & Deploy to CapRover
 on:
   push:
     branches: [main]
-  workflow_dispatch: # permite lanzarlo manualmente desde GitHub
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # necesario para subir a ghcr.io
+      packages: write
 
     steps:
       # ── 1. Checkout ────────────────────────────────────────────────────────
@@ -26,8 +26,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.TOKEN_GHCR }}
 
-      # ── 3. Construir el nombre de la imagen (todo lowercase) ──────────────────
-      #    Tag fijo: :prod  —  cache separado: :buildcache
+      # ── 3. Construir el nombre de la imagen (todo lowercase) ──────────────
       - name: Set image name
         run: |
           OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
@@ -36,7 +35,7 @@ jobs:
           echo "IMAGE_NAME=${IMAGE}"        >> $GITHUB_ENV
           echo "IMAGE_PROD=${IMAGE}:prod"   >> $GITHUB_ENV
 
-      # ── 4. Configurar Docker Buildx (caché) ───────────────────────────────
+      # ── 4. Configurar Docker Buildx ───────────────────────────────────────
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -47,7 +46,11 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_PROD }}
-          # Cache entre runs usando ghcr.io como backend
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            BUILD_ID=${{ github.sha }}
           cache-from: type=registry,ref=${{ env.IMAGE_NAME }}:buildcache
           cache-to:   type=registry,ref=${{ env.IMAGE_NAME }}:buildcache,mode=max
 
@@ -55,7 +58,7 @@ jobs:
       - name: Deploy to CapRover
         uses: caprover/deploy-from-github@v1.1.2
         with:
-          server: ${{ secrets.CAPROVER_SERVER }}   # https://captain.tudominio.com
-          app:    ${{ secrets.CAPROVER_APP }}       # nombre exacto de la app en CapRover
-          token:  ${{ secrets.CAPROVER_APP_TOKEN }} # token de la pestaña Deployment
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app:    ${{ secrets.CAPROVER_APP }}
+          token:  ${{ secrets.CAPROVER_APP_TOKEN }}
           image:  ${{ env.IMAGE_PROD }}
