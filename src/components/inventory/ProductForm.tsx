@@ -265,19 +265,11 @@ export default function ProductForm({
       }
 
       if (isEdit) {
-        const res = await api.patch(`/products/${productId}`, body, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const res = await api.patch(`/products/${productId}`, body);
 
         toast.success(res.data?.message || "Producto actualizado correctamente");
       } else {
-        const res = await api.post("/products", body, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const res = await api.post("/products", body);
 
         toast.success(res.data?.message || "Producto creado correctamente");
         resetCreateForm();
