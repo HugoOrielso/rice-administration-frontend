@@ -133,8 +133,6 @@ export default function ProductDetailPage() {
     const isLowStock = product.stock <= product.minStock && product.stock > 0;
     const isOutOfStock = product.stock === 0;
     const imageSrc = product.imageUrl
-        ? `${process.env.NEXT_PUBLIC_API_URL_IMAGES}${product.imageUrl}`
-        : null;
     return (
         <div className="space-y-6 p-3">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">

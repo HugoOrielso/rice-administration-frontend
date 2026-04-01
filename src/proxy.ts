@@ -1,26 +1,51 @@
-import { NextResponse, NextRequest } from "next/server"
-import { auth } from "./lib/auth"
+import { NextResponse, NextRequest } from "next/server";
+import { auth } from "./lib/auth";
+
+const publicRoutes = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
+const defaultAuthenticatedRoute = "/dashboard";
 
 export default async function middleware(req: NextRequest) {
   try {
-    const session = await auth()
+    const session = await auth();
+    const { pathname } = req.nextUrl;
 
-    if ((session?.error as string)?.startsWith("RefreshFailed")) {
-      return NextResponse.redirect(new URL("/api/auth/logout", req.url))
+    const isPublicRoute = publicRoutes.some((route) =>
+      pathname === route || pathname.startsWith(`${route}/`)
+    );
+
+    const isAuthenticated = !!session;
+
+    if ((session?.error as string | undefined)?.startsWith("RefreshFailed")) {
+      return NextResponse.redirect(new URL("/api/auth/logout", req.url));
     }
 
-    if (!session) {
-      const signInUrl = new URL("/login", req.url)
-      signInUrl.searchParams.set("callbackUrl", req.url)
-      return NextResponse.redirect(signInUrl)
+    // Usuario autenticado intentando entrar a rutas públicas
+    if (isAuthenticated && isPublicRoute) {
+      return NextResponse.redirect(new URL(defaultAuthenticatedRoute, req.url));
     }
 
-    return NextResponse.next()
+    // Usuario no autenticado intentando entrar a rutas privadas
+    if (!isAuthenticated && !isPublicRoute) {
+      const signInUrl = new URL("/login", req.url);
+      signInUrl.searchParams.set("callbackUrl", req.url);
+      return NextResponse.redirect(signInUrl);
+    }
+
+    return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL("/login", req.url))
+    const signInUrl = new URL("/login", req.url);
+    signInUrl.searchParams.set("callbackUrl", req.url);
+    return NextResponse.redirect(signInUrl);
   }
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
-}
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/"
+  ],
+};

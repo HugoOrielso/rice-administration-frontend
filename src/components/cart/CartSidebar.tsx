@@ -40,8 +40,6 @@ export function CartSidebar({
     0
   );
 
-
-
   return (
     <>
       <div
@@ -190,8 +188,6 @@ export function CartSidebar({
                                 </p>
                               </div>
                             </div>
-
-
                           </div>
                         </div>
                       </div>

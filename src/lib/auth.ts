@@ -169,9 +169,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (session.user as { role?: string }).role = token.user.role as string;
       }
 
+      session.accessToken = token.accessToken as string | undefined;
+      session.refreshToken = token.refreshToken as string | undefined;
       session.error = token.error as string | undefined;
 
       return session;
-    },
+    }
   },
 });

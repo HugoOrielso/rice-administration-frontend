@@ -17,7 +17,8 @@ export interface CartItem extends ApiProduct {
 
 export interface CheckoutFormData {
   fullName: string;
-  cc: string;
+  documentType: "CEDULA_CIUDADANIA" | "NIT" | "CEDULA_EXTRANJERIA" | "RIF" | "PPT";
+  documentNumber: string;
   address: string;
   email: string;
 }
@@ -53,7 +54,8 @@ interface CartState {
 
 const initialCheckoutForm: CheckoutFormData = {
   fullName: "",
-  cc: "",
+  documentType: "CEDULA_CIUDADANIA",
+  documentNumber: "",
   address: "",
   email: "",
 };

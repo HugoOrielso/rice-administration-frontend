@@ -1,15 +1,16 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, {
   ChangeEvent,
   FormEvent,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import Image from "next/image";
 import { axiosClient } from "@/lib/axios";
 
 type ProductFormState = {
@@ -17,9 +18,11 @@ type ProductFormState = {
   slug: string;
   details: string;
   price: string;
-  weightKg: string;
   stock: string;
   minStock: string;
+  packageLabel: string;
+  unitsPerPackage: string;
+  unitWeightGrams: string;
   isActive: boolean;
 };
 
@@ -28,9 +31,11 @@ const initialState: ProductFormState = {
   slug: "",
   details: "",
   price: "",
-  weightKg: "",
   stock: "",
   minStock: "",
+  packageLabel: "",
+  unitsPerPackage: "",
+  unitWeightGrams: "",
   isActive: true,
 };
 
@@ -48,20 +53,28 @@ function makeSlug(value: string) {
 export default function ProductCreateForm() {
   const [form, setForm] = useState<ProductFormState>(initialState);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [showPreview, setShowPreview] = useState("");
+  const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const isFormValid = useMemo(() => {
     return (
       form.name.trim() !== "" &&
       form.slug.trim() !== "" &&
       form.price.trim() !== "" &&
-      form.weightKg.trim() !== "" &&
+      Number(form.price) > 0 &&
       form.stock.trim() !== "" &&
-      form.minStock.trim() !== ""
+      Number(form.stock) >= 0 &&
+      form.minStock.trim() !== "" &&
+      Number(form.minStock) >= 0
     );
   }, [form]);
 
@@ -103,8 +116,9 @@ export default function ProductCreateForm() {
     const file = e.target.files?.[0] ?? null;
 
     if (!file) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setImageFile(null);
-      setShowPreview("");
+      setPreviewUrl("");
       return;
     }
 
@@ -113,28 +127,37 @@ export default function ProductCreateForm() {
     if (!allowedTypes.includes(file.type)) {
       toast.error("Solo se permiten imágenes PNG, JPG o WEBP.");
       e.target.value = "";
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setImageFile(null);
-      setShowPreview("");
+      setPreviewUrl("");
       return;
     }
 
     if (file.size > 3 * 1024 * 1024) {
       toast.error("La imagen no debe superar los 3MB.");
       e.target.value = "";
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setImageFile(null);
-      setShowPreview("");
+      setPreviewUrl("");
       return;
     }
 
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+
+    const objectUrl = URL.createObjectURL(file);
     setImageFile(file);
-    setShowPreview(URL.createObjectURL(file));
+    setPreviewUrl(objectUrl);
   }
 
   function resetForm() {
     setForm(initialState);
     setImageFile(null);
-    setShowPreview("");
     setAutoSlug(true);
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl("");
+    }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -159,18 +182,29 @@ export default function ProductCreateForm() {
       return;
     }
 
-    if (!form.weightKg.trim() || Number(form.weightKg) <= 0) {
-      toast.error("El peso debe ser mayor a 0");
-      return;
-    }
-
-    if (Number(form.stock) < 0) {
+    if (form.stock.trim() === "" || Number(form.stock) < 0) {
       toast.error("El stock no puede ser negativo");
       return;
     }
 
-    if (Number(form.minStock) < 0) {
+    if (form.minStock.trim() === "" || Number(form.minStock) < 0) {
       toast.error("El stock mínimo no puede ser negativo");
+      return;
+    }
+
+    if (
+      form.unitsPerPackage.trim() !== "" &&
+      Number(form.unitsPerPackage) < 0
+    ) {
+      toast.error("Las unidades por paquete no pueden ser negativas");
+      return;
+    }
+
+    if (
+      form.unitWeightGrams.trim() !== "" &&
+      Number(form.unitWeightGrams) < 0
+    ) {
+      toast.error("El peso por unidad no puede ser negativo");
       return;
     }
 
@@ -178,24 +212,23 @@ export default function ProductCreateForm() {
 
     try {
       const body = new FormData();
+
       body.append("name", form.name.trim());
       body.append("slug", form.slug.trim());
       body.append("details", form.details.trim());
-      body.append("price", form.price);
-      body.append("weightKg", form.weightKg);
-      body.append("stock", form.stock);
-      body.append("minStock", form.minStock);
+      body.append("price", form.price.trim());
+      body.append("stock", form.stock.trim());
+      body.append("minStock", form.minStock.trim());
+      body.append("packageLabel", form.packageLabel.trim());
+      body.append("unitsPerPackage", form.unitsPerPackage.trim());
+      body.append("unitWeightGrams", form.unitWeightGrams.trim());
       body.append("isActive", String(form.isActive));
 
-      if (imageFile) {
-        body.append("image", imageFile);
+      if (imageFile instanceof File) {
+        body.append("image", imageFile, imageFile.name);
       }
 
-      const res = await axiosClient.post("/products", body, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axiosClient.post("/products", body);
 
       toast.success(res.data?.message || "Producto creado correctamente");
       resetForm();
@@ -214,10 +247,9 @@ export default function ProductCreateForm() {
           "No se pudo crear el producto";
 
         toast.error(message);
-        return;
+      } else {
+        toast.error("Ocurrió un error inesperado");
       }
-
-      toast.error("Ocurrió un error inesperado");
     } finally {
       setIsLoading(false);
     }
@@ -233,7 +265,7 @@ export default function ProductCreateForm() {
           Crear producto
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          Registra un nuevo producto con precio, peso, stock e imagen.
+          Registra un nuevo producto con precio, stock e imagen.
         </p>
       </div>
 
@@ -251,7 +283,7 @@ export default function ProductCreateForm() {
             type="text"
             value={form.name}
             onChange={handleChange}
-            placeholder="Arroz Zulia Premium 50kg"
+            placeholder="Arroz Zulia Blanco Gourmet"
             className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
           />
         </div>
@@ -269,7 +301,7 @@ export default function ProductCreateForm() {
             type="text"
             value={form.slug}
             onChange={handleChange}
-            placeholder="arroz-zulia-premium-50kg"
+            placeholder="arroz-zulia-blanco-gourmet"
             className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
           />
         </div>
@@ -315,26 +347,6 @@ export default function ProductCreateForm() {
 
           <div>
             <label
-              htmlFor="weightKg"
-              className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700"
-            >
-              Peso (kg)
-            </label>
-            <input
-              id="weightKg"
-              name="weightKg"
-              type="number"
-              step="0.01"
-              min="0"
-              value={form.weightKg}
-              onChange={handleChange}
-              placeholder="50"
-              className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor="stock"
               className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700"
             >
@@ -370,6 +382,63 @@ export default function ProductCreateForm() {
               className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
             />
           </div>
+
+          <div>
+            <label
+              htmlFor="packageLabel"
+              className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700"
+            >
+              Presentación
+            </label>
+            <input
+              id="packageLabel"
+              name="packageLabel"
+              type="text"
+              value={form.packageLabel}
+              onChange={handleChange}
+              placeholder="Paquete x 24"
+              className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="unitsPerPackage"
+              className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700"
+            >
+              Unidades por paquete
+            </label>
+            <input
+              id="unitsPerPackage"
+              name="unitsPerPackage"
+              type="number"
+              min="0"
+              value={form.unitsPerPackage}
+              onChange={handleChange}
+              placeholder="24"
+              className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="unitWeightGrams"
+              className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700"
+            >
+              Peso por unidad (g)
+            </label>
+            <input
+              id="unitWeightGrams"
+              name="unitWeightGrams"
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.unitWeightGrams}
+              onChange={handleChange}
+              placeholder="500"
+              className="h-13 w-full rounded-xl border bg-white px-4 text-sm text-black outline-none transition-all placeholder:text-gray-300 focus:shadow focus:shadow-green-600"
+            />
+          </div>
         </div>
 
         <div>
@@ -393,15 +462,15 @@ export default function ProductCreateForm() {
           </p>
         </div>
 
-        {showPreview && (
+        {previewUrl && (
           <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700">
               Preview
             </p>
-            <Image width={100} height={100}
-              src={showPreview}
+            <img
+              src={previewUrl}
               alt="Vista previa del producto"
-              className="rounded-sm border object-cover aspect-square"
+              className="aspect-square h-28 w-28 rounded-sm border object-cover"
             />
           </div>
         )}
@@ -420,7 +489,7 @@ export default function ProductCreateForm() {
         <button
           type="submit"
           disabled={isLoading || !isFormValid}
-          className="flex cursor-pointer h-13 w-full items-center justify-center gap-2.5 rounded-xl text-sm font-semibold tracking-wide text-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-70 hover:-translate-y-px active:translate-y-0"
+          className="flex h-13 w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl text-sm font-semibold tracking-wide text-white transition-all duration-200 hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
           style={{
             background: "linear-gradient(135deg, #166534 0%, #1e7a3e 100%)",
             boxShadow: "0 4px 20px rgba(22,101,52,0.35)",

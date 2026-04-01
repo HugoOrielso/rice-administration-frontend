@@ -10,7 +10,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
     return (
-        <article className="group overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl grid grid-cols-[auto_1fr]">
+        <article className="group overflow-hidden rounded-4xl border border-slate-200 max-w-100 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl grid grid-cols-[auto_1fr]">
             <div className="relative  max-w-20 flex items-center md:max-w-30 justify-center w-full lg:max-w-40">
                 <img
                     src={product.image}

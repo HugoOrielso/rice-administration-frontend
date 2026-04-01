@@ -24,9 +24,7 @@ async function getProducts() {
         name: product.name,
         description:
           product.details?.trim() || "Producto disponible en inventario.",
-        image: product.imageUrl
-          ? `${process.env.NEXT_PUBLIC_API_URL_IMAGES}${product.imageUrl}`
-          : "/assets/product-placeholder.png",
+        image: product.imageUrl ?? '/assets/product-placeholder.jpg',
         presentation: [
           product.packageLabel,
           product.unitsPerPackage
