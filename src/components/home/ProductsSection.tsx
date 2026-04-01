@@ -24,6 +24,7 @@ export function ProductsSection({ products }: ProductsSectionProps) {
   const increaseQuantity = useCartStore((state) => state.increaseQuantity);
   const decreaseQuantity = useCartStore((state) => state.decreaseQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
+  const hasHydrated = useCartStore((state) => state.hasHydrated);
   const totalItems = useCartStore((state) => state.totalItems());
 
 
@@ -78,8 +79,11 @@ export function ProductsSection({ products }: ProductsSectionProps) {
         </div>
       </section>
 
-      <FloatingCartButton count={totalItems} onClick={openCart} />
 
+      <FloatingCartButton
+        count={hasHydrated ? totalItems : 0}
+        onClick={openCart}
+      />
       <CartSidebar
         isOpen={isOpen}
         checkoutStep={checkoutStep}

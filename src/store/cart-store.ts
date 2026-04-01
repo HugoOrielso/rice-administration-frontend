@@ -27,6 +27,9 @@ interface CartState {
   isOpen: boolean;
   checkoutStep: "cart" | "checkout";
   checkoutForm: CheckoutFormData;
+  hasHydrated: boolean;
+
+  setHasHydrated: (value: boolean) => void;
 
   openCart: () => void;
   closeCart: () => void;
@@ -62,6 +65,9 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       checkoutStep: "cart",
       checkoutForm: initialCheckoutForm,
+      hasHydrated: false,
+
+      setHasHydrated: (value) => set({ hasHydrated: value }),
 
       openCart: () => set({ isOpen: true }),
 
@@ -187,6 +193,9 @@ export const useCartStore = create<CartState>()(
         cart: state.cart,
         checkoutForm: state.checkoutForm,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );
