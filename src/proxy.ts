@@ -11,31 +11,27 @@ export default auth((req) => {
   const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/logout")
   const isFileRoute = pathname.includes(".")
 
-  // Ignorar rutas internas, archivos y rutas de auth
   if (isApiRoute || isNextRoute || isFileRoute || isAuthRoute) {
     return NextResponse.next()
   }
 
-  // Si falló refresh, cerrar sesión
   if ((session?.error as string | undefined)?.startsWith("RefreshFailed")) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
 
-  // No autenticado intentando entrar a dashboard
   if (!session && isDashboardRoute) {
     const loginUrl = new URL("/login", req.url)
     loginUrl.searchParams.set("callbackUrl", `${pathname}${search}`)
     return NextResponse.redirect(loginUrl)
   }
 
-  // Autenticado intentando entrar a cualquier ruta pública
-  if (session && !isDashboardRoute) {
+  // ← Solo redirige si es exactamente "/" o rutas realmente públicas
+  if (session && !isDashboardRoute && pathname === "/") {
     return NextResponse.redirect(new URL("/dashboard", req.url))
   }
 
   return NextResponse.next()
 })
-
 export const config = {
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
