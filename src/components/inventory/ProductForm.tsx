@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 
 export type ProductFormValues = {
   name: string;
@@ -265,11 +265,11 @@ export default function ProductForm({
       }
 
       if (isEdit) {
-        const res = await api.patch(`/products/${productId}`, body);
+        const res = await axiosClient.patch(`/products/${productId}`, body);
 
         toast.success(res.data?.message || "Producto actualizado correctamente");
       } else {
-        const res = await api.post("/products", body);
+        const res = await axiosClient.post("/products", body);
 
         toast.success(res.data?.message || "Producto creado correctamente");
         resetCreateForm();

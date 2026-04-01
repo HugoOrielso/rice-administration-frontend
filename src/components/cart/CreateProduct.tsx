@@ -10,7 +10,7 @@ import React, {
 import axios from "axios";
 import { toast } from "sonner";
 import Image from "next/image";
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 
 type ProductFormState = {
   name: string;
@@ -191,7 +191,7 @@ export default function ProductCreateForm() {
         body.append("image", imageFile);
       }
 
-      const res = await api.post("/products", body, {
+      const res = await axiosClient.post("/products", body, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

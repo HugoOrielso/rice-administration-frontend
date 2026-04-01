@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { MoreHorizontal, Pencil, Eye, Ban } from "lucide-react";
 import { toast } from "sonner";
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ type Props = {
 export function ProductActions({ product, onRefresh }: Props) {
   async function handleDeactivate() {
     try {
-      await api.patch(`/products/${product.id}/deactivate`);
+      await axiosClient.patch(`/products/${product.id}/deactivate`);
       toast.success("Producto desactivado");
       onRefresh?.();
     } catch {

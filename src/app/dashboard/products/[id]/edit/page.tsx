@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ProductForm, { ProductFormValues } from "@/components/inventory/ProductForm";
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 
 type ProductApiResponse = {
     id: string;
@@ -32,7 +32,7 @@ export default function EditProductPage() {
     const loadProduct = useCallback(async () => {
         try {
             setIsLoading(true);
-            const res = await api.get<ProductApiResponse>(`/products/${id}`);
+            const res = await axiosClient.get<ProductApiResponse>(`/products/${id}`);
             const data = res.data;
 
             setProduct({

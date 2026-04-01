@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Package, PackagePlus } from "lucide-react";
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 import { toast } from "sonner";
 import { getProductColumns } from "@/components/inventory/columns";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export default function ProductsPage() {
   const loadProducts = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await api.get("/products");
+      const res = await axiosClient.get("/products");
       setProducts(res.data);
     } catch  {
       toast.error("No se pudieron cargar los productos");

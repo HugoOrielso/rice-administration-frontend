@@ -17,7 +17,7 @@ import {
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
-import api from "@/lib/axios";
+import { axiosClient } from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,7 +64,7 @@ export default function ProductDetailPage() {
     const loadProduct = useCallback(async () => {
         try {
             setIsLoading(true);
-            const res = await api.get(`/products/${id}`);
+            const res = await axiosClient.get(`/products/${id}`);
             setProduct(res.data);
         } catch {
             toast.error("No se pudo cargar el producto");
