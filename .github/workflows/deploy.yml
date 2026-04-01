@@ -48,6 +48,7 @@ jobs:
           tags: ${{ env.IMAGE_PROD }}
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_API_IMAGES=${{ secrets.NEXT_PUBLIC_API_IMAGES }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             BUILD_ID=${{ github.sha }}
