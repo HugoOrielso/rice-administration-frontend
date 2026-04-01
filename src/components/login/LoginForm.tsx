@@ -13,9 +13,7 @@ const LoginForm = () => {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsLoading(true);
-
         const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>
-        console.log(data)
         const email = (data.email ?? "").trim()
         const password = (data.password ?? "").trim()
         if (!email) return toast.error("Enter your email")

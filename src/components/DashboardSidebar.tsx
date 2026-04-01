@@ -83,7 +83,7 @@ export default function DashboardSidebar() {
                   >
                     <Link
                       href={childHref}
-                      className="flex items-center gap-3 py-2 text-sm font-medium transition"
+                      className="flex items-center gap-3 py-2 text-sm w-full font-medium transition"
                     >
                       <ChildIcon className="w-4 h-4 shrink-0" />
                       <span>{childLabel}</span>
@@ -159,7 +159,7 @@ export default function DashboardSidebar() {
             "bg-(--sidebar-active) text-(--color-brand-orange-dark) font-semibold"
           )}
         >
-          <Link href={href} className="flex items-center gap-3 py-3 text-sm font-medium transition">
+          <Link href={href} className="flex items-center gap-3 py-3 text-sm w-full font-medium transition">
             <Icon className="w-5 h-5 shrink-0" />
             <span>{label}</span>
           </Link>

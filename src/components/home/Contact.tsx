@@ -1,4 +1,9 @@
 export function CTASection() {
+  const phone = "573138557993";
+  const message = encodeURIComponent(
+    "Hola, quiero información sobre el Arroz Zulia 👋"
+  );
+
   return (
     <section id="contacto" className="bg-emerald-800 py-20">
       <div className="mx-auto max-w-4xl px-6 text-center lg:px-8">
@@ -14,13 +19,16 @@ export function CTASection() {
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <a
-            href="https://wa.me/"
+            href={`https://wa.me/${phone}?text=${message}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-slate-900 transition hover:bg-yellow-300"
           >
             Pedir por WhatsApp
           </a>
+
           <a
-            href="mailto:contacto@empresa.com"
+            href="mailto:andinagroup.comercial@gmail.com"
             className="rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/10"
           >
             Escribir al correo

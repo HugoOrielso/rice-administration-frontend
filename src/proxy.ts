@@ -8,17 +8,17 @@ export default auth((req) => {
   const isDashboardRoute = pathname.startsWith("/dashboard")
   const isApiRoute = pathname.startsWith("/api")
   const isNextRoute = pathname.startsWith("/_next")
-  const isFileRoute =
-    pathname.includes(".") // evita archivos como favicon.ico, images, etc.
+  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/logout")
+  const isFileRoute = pathname.includes(".")
 
-  // Ignorar rutas internas/archivos
-  if (isApiRoute || isNextRoute || isFileRoute) {
+  // Ignorar rutas internas, archivos y rutas de auth
+  if (isApiRoute || isNextRoute || isFileRoute || isAuthRoute) {
     return NextResponse.next()
   }
 
   // Si falló refresh, cerrar sesión
   if ((session?.error as string | undefined)?.startsWith("RefreshFailed")) {
-    return NextResponse.redirect(new URL("/api/auth/logout", req.url))
+    return NextResponse.redirect(new URL("/login", req.url))
   }
 
   // No autenticado intentando entrar a dashboard
@@ -38,14 +38,6 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    /*
-      Ejecuta middleware en todo excepto:
-      - /api
-      - /_next/static
-      - /_next/image
-      - favicon.ico
-      - archivos públicos con extensión
-    */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 }

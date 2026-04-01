@@ -1,16 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface Product {
-  id: number;
+export interface ApiProduct {
+  id: string;
   name: string;
   description: string;
   presentation: string;
   image: string;
   price: number;
+  stock: number;
 }
 
-export interface CartItem extends Product {
+export interface CartItem extends ApiProduct {
   quantity: number;
 }
 
@@ -37,10 +38,10 @@ interface CartState {
   setCheckoutField: (field: keyof CheckoutFormData, value: string) => void;
   resetCheckoutForm: () => void;
 
-  addToCart: (product: Product) => void;
-  removeFromCart: (id: number) => void;
-  increaseQuantity: (id: number) => void;
-  decreaseQuantity: (id: number) => void;
+  addToCart: (product: ApiProduct) => { ok: boolean; message?: string };
+  removeFromCart: (id: string) => void;
+  increaseQuantity: (id: string) => { ok: boolean; message?: string };
+  decreaseQuantity: (id: string) => void;
   clearCart: () => void;
 
   totalItems: () => number;
@@ -63,8 +64,17 @@ export const useCartStore = create<CartState>()(
       checkoutForm: initialCheckoutForm,
 
       openCart: () => set({ isOpen: true }),
-      closeCart: () => set({ isOpen: false, checkoutStep: "cart" }),
-      toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
+
+      closeCart: () =>
+        set({
+          isOpen: false,
+          checkoutStep: "cart",
+        }),
+
+      toggleCart: () =>
+        set((state) => ({
+          isOpen: !state.isOpen,
+        })),
 
       goToCheckout: () => set({ checkoutStep: "checkout" }),
       goToCart: () => set({ checkoutStep: "cart" }),
@@ -79,38 +89,76 @@ export const useCartStore = create<CartState>()(
 
       resetCheckoutForm: () => set({ checkoutForm: initialCheckoutForm }),
 
-      addToCart: (product) =>
-        set((state) => {
-          const existing = state.cart.find((item) => item.id === product.id);
+      addToCart: (product) => {
+        const existing = get().cart.find((item) => item.id === product.id);
 
-          if (existing) {
+        if (product.stock <= 0) {
+          return {
+            ok: false,
+            message: "Este producto no tiene stock disponible.",
+          };
+        }
+
+        if (existing) {
+          if (existing.quantity >= product.stock) {
             return {
-              cart: state.cart.map((item) =>
-                item.id === product.id
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item
-              ),
-              isOpen: true,
+              ok: false,
+              message: `Solo hay ${product.stock} unidades disponibles.`,
             };
           }
 
-          return {
-            cart: [...state.cart, { ...product, quantity: 1 }],
+          set((state) => ({
+            cart: state.cart.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            ),
             isOpen: true,
-          };
-        }),
+          }));
+
+          return { ok: true };
+        }
+
+        set((state) => ({
+          cart: [...state.cart, { ...product, quantity: 1 }],
+          isOpen: true,
+        }));
+
+        return { ok: true };
+      },
 
       removeFromCart: (id) =>
         set((state) => ({
           cart: state.cart.filter((item) => item.id !== id),
         })),
 
-      increaseQuantity: (id) =>
+      increaseQuantity: (id) => {
+        const item = get().cart.find((product) => product.id === id);
+
+        if (!item) {
+          return {
+            ok: false,
+            message: "Producto no encontrado en el carrito.",
+          };
+        }
+
+        if (item.quantity >= item.stock) {
+          return {
+            ok: false,
+            message: `Solo hay ${item.stock} unidades disponibles.`,
+          };
+        }
+
         set((state) => ({
-          cart: state.cart.map((item) =>
-            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+          cart: state.cart.map((product) =>
+            product.id === id
+              ? { ...product, quantity: product.quantity + 1 }
+              : product
           ),
-        })),
+        }));
+
+        return { ok: true };
+      },
 
       decreaseQuantity: (id) =>
         set((state) => ({
@@ -131,10 +179,7 @@ export const useCartStore = create<CartState>()(
         get().cart.reduce((acc, item) => acc + item.quantity, 0),
 
       totalPrice: () =>
-        get().cart.reduce(
-          (acc, item) => acc + item.quantity * item.price,
-          0
-        ),
+        get().cart.reduce((acc, item) => acc + item.quantity * item.price, 0),
     }),
     {
       name: "cart-storage",

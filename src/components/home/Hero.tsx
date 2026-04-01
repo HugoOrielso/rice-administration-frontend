@@ -20,9 +20,6 @@ export function Hero() {
       <div className="relative fade-in mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:px-8 lg:py-24">
         {/* TEXTO */}
         <div>
-          <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-4 py-1 text-sm font-medium text-white/90">
-            Seleccionado por expertos arroceros del Norte de Santander
-          </span>
 
           <h1 className="mt-6 max-w-2xl text-4xl font-black leading-tight text-white md:text-5xl lg:text-6xl">
             El arroz que acompaña cada comida con{" "}
@@ -68,16 +65,11 @@ export function Hero() {
         </div>
 
         {/* IMAGEN */}
-        <div className="flex justify-center lg:justify-end fade-in">
-          <div className="relative rounded-4xl bg-white/10 p-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
-            
-            {/* Badge */}
-            {/* <div className="absolute -left-6 top-4 z-10 rounded-2xl bg-(--color-brand-orange) px-4 py-2 text-sm font-extrabold text-white shadow-lg">
-              Calidad premium
-            </div> */}
+        <div className="flex justify-center flex-col items-center gap-2 lg:justify-end fade-in">
+          <div className="relative rounded-4xl bg-white/10 p-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm max-w-100">
 
             {/* Contenedor correcto para next/image */}
-            <div className="relative h-105 w-75 sm:h-115 sm:w-85">
+            <div className="relative h-105 w-full sm:h-115 sm:w-92">
               <Image
                 src="/assets/product-1.png"
                 alt="Producto Arroz Zulia"
@@ -86,7 +78,12 @@ export function Hero() {
                 sizes="(max-width: 640px) 300px, 340px"
                 className="object-contain drop-shadow-2xl"
               />
+
             </div>
+
+          </div>
+          <div className="relative rounded-4xl bg-white/10 p-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm max-w-100">
+            <p className="text-(--color-brand-orange)">VENTAS PARA SUDAMÉRICA Y CENTRO AMERICA</p>
           </div>
         </div>
       </div>

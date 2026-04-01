@@ -4,32 +4,52 @@ import { CTASection } from "@/components/home/Contact";
 import { Footer } from "@/components/home/Footer";
 import { Header } from "@/components/home/Header";
 import { Hero } from "@/components/home/Hero";
-import { ProductsSection } from "@/components/home/Products";
+import { ProductsSection } from "@/components/home/ProductsSection";
 
-export default function HomePage() {
-  const products = [
-    {
-      id: 1,
-      name: 'Arroz Zulia Fortificado',
-      description:
-        'Arroz fortificado con ácido fólico y riboflavina, elaborado bajo altos estándares de calidad para acompañar la mesa de las familias colombianas.',
-      image: '/assets/product-1.png',
-      presentation: 'Presentación: 900 g',
-      price: 6500
-    },
-    {
-      id: 2,
-      name: 'Arroz Zulia Blanco Gourmet',
-      description:
-        'Arroz blanco tipo gourmet, seleccionado por expertos arroceros del Norte de Santander para ofrecer excelente textura, sabor y rendimiento.',
-      image: '/assets/product-2.png',
-      presentation: 'Presentación: 500 g',
-      price: 5500
-    },
-  ];
+async function getProducts() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
+    });
 
+    if (!res.ok) {
+      throw new Error("No se pudieron obtener los productos");
+    }
+
+    const data: ApiProduct[] = await res.json();
+
+    return data
+      .filter((product) => product.isActive)
+      .map((product) => ({
+        id: product.id,
+        name: product.name,
+        description:
+          product.details?.trim() || "Producto disponible en inventario.",
+        image: product.imageUrl
+          ? `${process.env.NEXT_PUBLIC_API_URL_IMAGES}${product.imageUrl}`
+          : "/assets/product-placeholder.png",
+        presentation: [
+          product.packageLabel,
+          product.unitsPerPackage
+            ? `${product.unitsPerPackage} unidades`
+            : null,
+          product.unitWeightGrams
+            ? `${product.unitWeightGrams} g`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+        price: product.price,
+        stock: product.stock,
+      }));
+  } catch  {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const products = await getProducts();
   return (
-    <div className="">
+    <div>
       <Header />
       <Hero />
       <ProductsSection products={products} />

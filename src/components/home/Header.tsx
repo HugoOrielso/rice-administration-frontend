@@ -25,7 +25,7 @@ export function Header() {
 
           <div>
             <p className="text-lg font-extrabold tracking-tight text-(--color-brand-green)">
-              Arroz Zulia
+              Andina group & Capital S.A.S
             </p>
             <p className="text-sm text-slate-500">
               Tradición, calidad y confianza
@@ -49,6 +49,12 @@ export function Header() {
             className="rounded-full bg-(--color-brand-orange) px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-(--color-brand-orange-dark)"
           >
             Cotizar ahora
+          </a>
+          <a  
+            href="/login"
+            className="rounded-full bg-(--color-brand-orange) px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-(--color-brand-orange-dark)"
+          >
+            Iniciar sesión
           </a>
         </nav>
       </div>

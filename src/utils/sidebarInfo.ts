@@ -1,5 +1,8 @@
 import {
+  ClipboardList,
   LayoutDashboard,
+  Package,
+  PackagePlus,
 } from "lucide-react";
 
 export type UserRole = "ADMIN" | "OPERATOR";
@@ -19,16 +22,24 @@ export const links: SidebarLink[] = [
     icon: LayoutDashboard,
     roles: ["ADMIN", "OPERATOR"],
   },
-  // {
-  //   href: "/dashboard/inventory",
-  //   label: "Inventario",
-  //   icon: FileText,
-  //   roles: ["ADMIN", "OPERATOR"],
-  // },
-  // {
-  //   href: "/dashboard/invoices",
-  //   label: "Facturas",
-  //   icon: FileCheck,
-  //   roles: ["ADMIN", "OPERATOR"],
-  // }
+  {
+    href: "/dashboard/products",
+    label: "Inventario",
+    icon: Package,
+    roles: ["ADMIN", "OPERATOR"],
+    children: [
+      {
+        href: "/dashboard/products",
+        label: "Ver productos",
+        icon: ClipboardList,
+        roles: ["ADMIN", "OPERATOR"],
+      },
+      {
+        href: "/dashboard/products/create",
+        label: "Crear producto",
+        icon: PackagePlus,
+        roles: ["ADMIN"],
+      }
+    ]
+  },
 ];
