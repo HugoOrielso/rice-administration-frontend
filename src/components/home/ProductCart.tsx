@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { ApiProduct } from "@/store/cart-store";
+import { ProductCardItem } from "@/store/cart-store";
 import { Plus } from "lucide-react";
 
 interface ProductCardProps {
-    product: ApiProduct;
-    onAddToCart: (product: ApiProduct) => void;
+  product: ProductCardItem;
+  onAddToCart: (product: ProductCardItem) => void;
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
