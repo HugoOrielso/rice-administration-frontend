@@ -5,17 +5,14 @@ import { Footer } from "@/components/home/Footer";
 import { Header } from "@/components/home/Header";
 import { Hero } from "@/components/home/Hero";
 import { ProductsSection } from "@/components/home/ProductsSection";
+import axiosClientPublic from "@/lib/axiosPublic";
 
 async function getProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`, {
-    });
+    const res = await axiosClientPublic.get(`/products`);
 
-    if (!res.ok) {
-      throw new Error("No se pudieron obtener los productos");
-    }
 
-    const data: ApiProduct[] = await res.json();
+    const data: ApiProduct[] = await res.data
 
     return data
       .filter((product) => product.isActive)
