@@ -13,6 +13,7 @@ async function getProducts() {
 
 
     const data: ApiProduct[] = await res.data
+    console.log("Productos obtenidos:", data);
 
     return data
       .filter((product) => product.isActive)
