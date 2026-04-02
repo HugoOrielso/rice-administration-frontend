@@ -1,5 +1,6 @@
 "use client";
-import { useCartStore, ProductCardItem } from "@/store/cart-store";
+
+import { useCartStore } from "@/store/cart-store";
 import { toast } from "sonner";
 import { FloatingCartButton } from "../cart/FloatingCartButton";
 import { CartSidebar } from "../cart/CartSidebar";
@@ -10,7 +11,6 @@ interface ProductsSectionProps {
 }
 
 export function ProductsSection({ products }: ProductsSectionProps) {
-
   const addToCart = useCartStore((state) => state.addToCart);
   const isOpen = useCartStore((state) => state.isOpen);
   const checkoutStep = useCartStore((state) => state.checkoutStep);
@@ -26,7 +26,6 @@ export function ProductsSection({ products }: ProductsSectionProps) {
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const hasHydrated = useCartStore((state) => state.hasHydrated);
   const totalItems = useCartStore((state) => state.totalItems());
-
 
   const handleAddToCart = (product: ProductCardItem) => {
     const result = addToCart(product);
@@ -46,13 +45,14 @@ export function ProductsSection({ products }: ProductsSectionProps) {
       toast.error(result.message || "No se puede agregar más unidades.");
     }
   };
+
   const handleSubmitCheckout = () => {
     toast.success("Formulario listo. Luego aquí conectamos el pago.");
   };
 
   return (
     <>
-      <section id="productos" className="bg-slate-50 scroll-mt-20 py-18 ">
+      <section id="productos" className="bg-slate-50 scroll-mt-20 py-18">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-700">
@@ -67,7 +67,7 @@ export function ProductsSection({ products }: ProductsSectionProps) {
             </p>
           </div>
 
-          <div className="mt-5  gap-8 grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] ">
+          <div className="mt-5 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -79,11 +79,11 @@ export function ProductsSection({ products }: ProductsSectionProps) {
         </div>
       </section>
 
-
       <FloatingCartButton
         count={hasHydrated ? totalItems : 0}
         onClick={openCart}
       />
+
       <CartSidebar
         isOpen={isOpen}
         checkoutStep={checkoutStep}
@@ -101,4 +101,3 @@ export function ProductsSection({ products }: ProductsSectionProps) {
     </>
   );
 }
-

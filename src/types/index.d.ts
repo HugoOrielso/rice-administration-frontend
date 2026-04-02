@@ -1,4 +1,4 @@
-interface ApiProduct {
+interface ProductApiResponse {
   id: string;
   name: string;
   details?: string | null;
@@ -8,6 +8,16 @@ interface ApiProduct {
   unitWeightGrams?: number | null;
   price: number;
   isActive: boolean;
-  stock: number;    
-};
+  stock: number;
+}
+
+interface ProductCardItem {
+  id: string;
+  name: string;
+  description: string;
+  presentation: string;
+  image: string;
+  price: number;
+  stock: number;
+}
 

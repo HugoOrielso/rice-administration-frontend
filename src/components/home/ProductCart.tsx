@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { ProductCardItem } from "@/store/cart-store";
 import { Plus } from "lucide-react";
 
 interface ProductCardProps {

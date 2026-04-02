@@ -1,16 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface ProductCardItem {
-  id: string;
-  name: string;
-  description: string;
-  presentation: string;
-  image: string;
-  price: number;
-  stock: number;
-}
-
 export interface CartItem extends ProductCardItem {
   quantity: number;
 }
