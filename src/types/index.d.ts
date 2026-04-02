@@ -10,3 +10,4 @@ interface ApiProduct {
   isActive: boolean;
   stock: number;    
 };
+

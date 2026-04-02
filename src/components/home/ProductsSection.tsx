@@ -1,12 +1,12 @@
 "use client";
-import { useCartStore, ApiProduct } from "@/store/cart-store";
+import { useCartStore, ProductCardItem } from "@/store/cart-store";
 import { toast } from "sonner";
 import { FloatingCartButton } from "../cart/FloatingCartButton";
 import { CartSidebar } from "../cart/CartSidebar";
 import { ProductCard } from "./ProductCart";
 
 interface ProductsSectionProps {
-  products: ApiProduct[];
+  products: ProductCardItem[];
 }
 
 export function ProductsSection({ products }: ProductsSectionProps) {
@@ -28,7 +28,7 @@ export function ProductsSection({ products }: ProductsSectionProps) {
   const totalItems = useCartStore((state) => state.totalItems());
 
 
-  const handleAddToCart = (product: ApiProduct) => {
+  const handleAddToCart = (product: ProductCardItem) => {
     const result = addToCart(product);
 
     if (!result.ok) {

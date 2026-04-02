@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export interface ApiProduct {
+export interface ProductCardItem {
   id: string;
   name: string;
   description: string;
@@ -11,7 +11,7 @@ export interface ApiProduct {
   stock: number;
 }
 
-export interface CartItem extends ApiProduct {
+export interface CartItem extends ProductCardItem {
   quantity: number;
 }
 
@@ -42,7 +42,7 @@ interface CartState {
   setCheckoutField: (field: keyof CheckoutFormData, value: string) => void;
   resetCheckoutForm: () => void;
 
-  addToCart: (product: ApiProduct) => { ok: boolean; message?: string };
+  addToCart: (product: ProductCardItem) => { ok: boolean; message?: string };
   removeFromCart: (id: string) => void;
   increaseQuantity: (id: string) => { ok: boolean; message?: string };
   decreaseQuantity: (id: string) => void;
