@@ -4,158 +4,229 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosClientPublic from "@/lib/axiosPublic";
 import { useCartStore } from "@/store/cart-store";
+import Image from "next/image";
+import Link from "next/link";
 
-type PaymentStatus = "LOADING" | "PAID" | "FAILED" | "PENDING" | "ERROR";
+interface InvoiceApiResponse {
+    ok: boolean;
+    data: InvoiceResponseData;
+}
 
-interface PaymentResponse {
-  ok: boolean;
-  data: {
-    invoiceNumber: string;
-    status: string;
-    amount?: number;
-    customerName?: string;
-  };
+function SimpleHeader() {
+    return (
+        <div className="w-full bg-white border-b shadow-sm py-4 px-6 flex items-center">
+            <Link href="/" className="flex items-center gap-4">
+                <div className="relative h-12 w-12 shrink-0 sm:h-14 sm:w-14">
+                    <Image
+                        src="/assets/logo.png"
+                        alt="Logo Andina Group"
+                        fill
+                        priority
+                        sizes="56px"
+                        className="object-contain"
+                    />
+                </div>
+
+                <div>
+                    <p className="text-lg font-extrabold tracking-tight text-(--color-brand-green)">
+                        Andina group & Capital S.A.S
+                    </p>
+                    <p className="text-sm text-slate-500">
+                        Tradición, calidad y confianza
+                    </p>
+                </div>
+            </Link>
+        </div>
+    );
 }
 
 export default function ResultadoContent() {
-  const params = useSearchParams();
-  const router = useRouter();
-  const pollRef = useRef<NodeJS.Timeout | null>(null);
-  const alreadyHandledRef = useRef(false);
+    const params = useSearchParams();
+    const router = useRouter();
+    const alreadyHandledRef = useRef(false);
 
-  const resetAll = useCartStore((state) => state.resetAll);
+    const resetAll = useCartStore((state) => state.resetAll);
 
-  const invoiceNumber = params.get("reference");
-  const [status, setStatus] = useState<PaymentStatus>("LOADING");
-  const [message, setMessage] = useState("Verificando pago...");
-  const [invoiceData, setInvoiceData] = useState<PaymentResponse["data"] | null>(null);
+    const invoiceIdentifier = params.get("reference");
 
-  useEffect(() => {
-    const checkInvoice = async () => {
-      try {
-        if (!invoiceNumber) {
-          setStatus("ERROR");
-          setMessage("No se encontró el número de factura en la URL.");
-          return;
-        }
+    const [loading, setLoading] = useState(true);
+    const [invoice, setInvoice] = useState<InvoiceResponseData | null>(null);
+    const [error, setError] = useState(false);
 
-        const { data } = await axiosClientPublic.get<PaymentResponse>(
-          `/invoices/${invoiceNumber}`
+    useEffect(() => {
+        const fetchInvoice = async () => {
+            try {
+                if (!invoiceIdentifier) {
+                    throw new Error("No se encontró el identificador de la factura");
+                }
+
+                const { data } = await axiosClientPublic.get<InvoiceApiResponse>(
+                    `/invoices/${invoiceIdentifier}`
+                );
+
+                if (!data?.ok || !data?.data) {
+                    throw new Error("Respuesta inválida del servidor");
+                }
+
+                const invoiceData = data.data;
+                setInvoice(invoiceData);
+
+                const isPaid =
+                    invoiceData.status === "PAID" ||
+                    invoiceData.status === "APPROVED";
+
+                if (isPaid && !alreadyHandledRef.current) {
+                    alreadyHandledRef.current = true;
+                    resetAll();
+                }
+            } catch (error) {
+                console.error(error);
+                setError(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInvoice();
+    }, [invoiceIdentifier, resetAll]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-[#0f5c3b] via-[#0d6b3f] to-[#1f7a3a]">
+                <SimpleHeader />
+                <div className="flex items-center justify-center px-4 py-16 text-white">
+                    Verificando pago...
+                </div>
+            </div>
         );
-        console.log(data)
-        const invoice = data.data;
-        setInvoiceData(invoice);
+    }
 
-        if (invoice.status === "PAID" || invoice.status === "APPROVED") {
-          setStatus("PAID");
-          setMessage("¡Pago confirmado! Redirigiendo...");
+    if (error || !invoice) {
+        return (
+            <div className="min-h-screen bg-linear-to-br from-[#0f5c3b] via-[#0d6b3f] to-[#1f7a3a]">
+                <SimpleHeader />
+                <div className="flex flex-col items-center justify-center px-6 py-16 text-white">
+                    <h1 className="text-2xl font-semibold">Error cargando factura</h1>
+                    <p className="mt-2 text-white/80 text-center">
+                        No pudimos obtener la información del pago.
+                    </p>
+                    <button
+                        onClick={() => router.push("/")}
+                        className="mt-6 px-6 py-3 bg-white text-black rounded-xl"
+                    >
+                        Volver al inicio
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
-          if (!alreadyHandledRef.current) {
-            alreadyHandledRef.current = true;
+    const isPaid =
+        invoice.status === "PAID" || invoice.status === "APPROVED";
 
-            if (pollRef.current) clearInterval(pollRef.current);
+    const isRejected =
+        invoice.status === "FAILED" ||
+        invoice.status === "DECLINED" ||
+        invoice.status === "ERROR";
 
-            resetAll();
+    return (
+        <div className="min-h-screen bg-linear-to-br from-[#0f5c3b] via-[#0d6b3f] to-[#1f7a3a]">
+            <SimpleHeader />
 
-            setTimeout(() => {
-              router.replace(`/checkout/exito?invoiceNumber=${invoiceNumber}`);
-            }, 1800);
-          }
+            <div className="flex justify-center px-4 py-10">
+                <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8">
+                    <div className="text-center mb-6">
+                        <h1 className="text-2xl font-bold text-gray-800">
+                            {isPaid ? "🎉 ¡Gracias por tu compra!" : "Gracias por tu pedido"}
+                        </h1>
 
-          return;
-        }
+                        <p className="text-gray-500 mt-2">
+                            Factura #{invoice.invoiceNumber}
+                        </p>
+                    </div>
 
-        if (
-          invoice.status === "FAILED" ||
-          invoice.status === "DECLINED" ||
-          invoice.status === "ERROR"
-        ) {
-          setStatus("FAILED");
-          setMessage("El pago no fue aprobado.");
+                    <div className="text-center mb-6">
+                        {isPaid && (
+                            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                Pago aprobado
+                            </span>
+                        )}
 
-          if (pollRef.current) clearInterval(pollRef.current);
-          return;
-        }
+                        {invoice.status === "PENDING" && (
+                            <span className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
+                                Pago pendiente
+                            </span>
+                        )}
 
-        setStatus("PENDING");
-        setMessage("Tu pago aún se está confirmando...");
-      } catch {
-        setStatus("ERROR");
-        setMessage("Ocurrió un error validando el pago.");
+                        {isRejected && (
+                            <span className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                                Pago no aprobado
+                            </span>
+                        )}
+                    </div>
 
-        if (pollRef.current) clearInterval(pollRef.current);
-      }
-    };
+                    <div className="mb-6 space-y-1">
+                        <p className="font-semibold text-gray-800">{invoice.customerName}</p>
+                        <p className="text-sm text-gray-500">{invoice.customerEmail}</p>
+                        <p className="text-sm text-gray-500">{invoice.customerPhone}</p>
+                        <p className="text-sm text-gray-500">{invoice.customerAddress}</p>
+                        <p className="text-sm text-gray-500">
+                            {invoice.documentType}: {invoice.documentNumber}
+                        </p>
+                    </div>
 
-    checkInvoice();
+                    <div className="border-t pt-4">
+                        <h2 className="font-semibold mb-3 text-gray-800">
+                            Detalle del pedido
+                        </h2>
 
-    pollRef.current = setInterval(checkInvoice, 3000);
+                        {invoice.items.map((item: InvoiceItemResponse) => (
+                            <div
+                                key={item.id}
+                                className="flex justify-between py-3 border-b"
+                            >
+                                <div>
+                                    <p className="font-medium text-gray-800">{item.productName}</p>
+                                    <p className="text-sm text-gray-500">
+                                        Cantidad: {item.quantity}
+                                    </p>
 
-    const timeout = setTimeout(() => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    }, 30000);
+                                    {item.packageLabel && (
+                                        <p className="text-sm text-gray-500">
+                                            Presentación: {item.packageLabel}
+                                        </p>
+                                    )}
+                                </div>
 
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-      clearTimeout(timeout);
-    };
-  }, [invoiceNumber, resetAll, router]);
+                                <p className="font-semibold text-gray-800">
+                                    ${item.lineTotal.toLocaleString("es-CO")}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
 
-  return (
-    <main className="min-h-screen flex items-center justify-center px-6">
-      <div className="w-full max-w-lg rounded-2xl border p-8 shadow-sm bg-white text-center">
-        {status === "LOADING" && (
-          <h1 className="text-2xl font-semibold">Verificando pago...</h1>
-        )}
+                    <div className="mt-6 space-y-2 border-t pt-4">
+                        <div className="flex justify-between text-sm text-gray-600">
+                            <span>Subtotal</span>
+                            <span>${invoice.subtotal.toLocaleString("es-CO")}</span>
+                        </div>
 
-        {status === "PENDING" && (
-          <h1 className="text-2xl font-semibold">Pago pendiente</h1>
-        )}
+                        <div className="flex justify-between text-lg font-bold text-gray-800">
+                            <span>Total</span>
+                            <span>${invoice.total.toLocaleString("es-CO")}</span>
+                        </div>
+                    </div>
 
-        {status === "PAID" && (
-          <h1 className="text-2xl font-semibold text-green-600">
-            🎉 ¡Gracias por tu compra!
-          </h1>
-        )}
-
-        {status === "FAILED" && (
-          <h1 className="text-2xl font-semibold text-red-600">
-            ❌ Pago rechazado
-          </h1>
-        )}
-
-        {status === "ERROR" && (
-          <h1 className="text-2xl font-semibold text-red-600">
-            Error
-          </h1>
-        )}
-
-        <p className="mt-4 text-gray-600">{message}</p>
-
-        {invoiceData?.invoiceNumber && (
-          <p className="mt-3 text-sm text-gray-500">
-            Factura: <span className="font-medium">{invoiceData.invoiceNumber}</span>
-          </p>
-        )}
-
-        {status === "FAILED" && (
-          <button
-            onClick={() => router.push("/checkout")}
-            className="mt-6 rounded-xl px-5 py-3 bg-black text-white"
-          >
-            Intentar nuevamente
-          </button>
-        )}
-
-        {status === "ERROR" && (
-          <button
-            onClick={() => router.push("/")}
-            className="mt-6 rounded-xl px-5 py-3 bg-black text-white"
-          >
-            Volver al inicio
-          </button>
-        )}
-      </div>
-    </main>
-  );
+                    <div className="mt-8 flex gap-3">
+                        <button
+                            onClick={() => router.push("/")}
+                            className="flex-1 px-5 py-3 bg-black text-white rounded-xl"
+                        >
+                            Volver al inicio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
