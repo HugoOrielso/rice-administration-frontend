@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { AboutSection } from "@/components/home/About";
 import { BenefitsSection } from "@/components/home/Benefits";
 import { CTASection } from "@/components/home/Contact";
@@ -7,27 +10,43 @@ import { Hero } from "@/components/home/Hero";
 import { ProductsSection } from "@/components/home/ProductsSection";
 import { getPublicProducts } from "@/services/products";
 
-export default async function HomePage() {
-  const products = await getPublicProducts();
+export default function HomePage() {
+  const [products, setProducts] = useState<ProductCardItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await getPublicProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error("Error loading public products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
 
   return (
     <div>
       <Header />
       <Hero />
 
-      {products.length === 0 && (
+      {!loading && products.length === 0 && (
         <div
-          className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 my-8 mx-auto max-w-2xl"
+          className="mx-auto my-8 max-w-2xl border-l-4 border-red-400 bg-red-50 p-4 text-red-700"
           role="alert"
         >
           <p className="font-bold">No hay productos disponibles</p>
-          <p>
-            Lo sentimos, no pudimos cargar los productos en este momento.
-          </p>
+          <p>Lo sentimos, no pudimos cargar los productos en este momento.</p>
         </div>
       )}
 
-      {products.length > 0 && <ProductsSection products={products} />}
+      {!loading && products.length > 0 && (
+        <ProductsSection products={products} />
+      )}
 
       <BenefitsSection />
       <AboutSection />

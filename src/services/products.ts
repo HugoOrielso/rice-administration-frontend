@@ -4,7 +4,7 @@ export async function getPublicProducts(): Promise<ProductCardItem[]> {
   try {
     const res = await axiosClientPublic.get("/products");
     const data: ProductApiResponse[] = res.data;
-    console.log(data)
+
     return data
       .map((product) => ({
         id: product.id,
