@@ -4,6 +4,7 @@ import { FormEvent } from "react";
 import { CreditCard, Mail, MapPin, Phone, User, Building2, Globe } from "lucide-react";
 import { CheckoutFormData, useCartStore } from "@/store/cart-store";
 import { CheckoutPayButton } from "./CheckoutButton";
+import { toast } from "sonner";
 
 const documentTypeOptions = [
   { value: "CEDULA_CIUDADANIA", label: "CC" },
@@ -30,27 +31,57 @@ export function CheckoutForm({
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const fullName = form.fullName.trim();
-    const documentNumber = form.documentNumber.trim();
-    const address = form.address.trim();
-    const email = form.email.trim();
-    const phone = form.phone.trim();
-    const city = form.city.trim();
-    const region = form.region.trim();
-    const country = form.country.trim();
+    const fullName = form.fullName
+    const documentNumber = form.documentNumber
+    const address = form.address
+    const email = form.email
+    const phone = form.phone
+    const city = form.city
+    const region = form.region
+    const country = form.country
 
-    if (!fullName) return alert("Debes ingresar tu nombre completo");
-    if (!form.documentType) return alert("Debes seleccionar el tipo de documento");
-    if (!documentNumber) return alert("Debes ingresar el número de documento");
-    if (!address) return alert("Debes ingresar la dirección");
-    if (!email) return alert("Debes ingresar el correo");
-    if (!phone) return alert("Debes ingresar el teléfono");
-    if (!form.phonePrefix.trim()) return alert("Debes ingresar el prefijo del teléfono");
-    if (!city) return alert("Debes ingresar la ciudad");
-    if (!region) return alert("Debes ingresar el departamento o región");
-    if (!country) return alert("Debes ingresar el país");
+    if (!fullName) {
+      toast.error("Debes ingresar tu nombre completo");
+      return
+    }
+    if (!form.documentType) {
+      toast.error("Debes seleccionar el tipo de documento");
+      return
+    }
+    if (!documentNumber){
+      toast.error("Debes ingresar el número de documento");
+      return
+    } 
+    if (!address) {
+      toast.error("Debes ingresar la dirección");
+      return
+    }
+    if (!email) {
+      toast.error("Debes ingresar el correo");
+      return
+    }
+    if (!phone) {
+      toast.error("Debes ingresar el teléfono");
+      return
+    }
+    if (!form.phonePrefix.trim()) {
+      toast.error("Debes ingresar el prefijo del teléfono");
+      return
+    }
+    if (!city) {
+      toast.error("Debes ingresar la ciudad");
+      return
+    }
+    if (!region) {
+      toast.error("Debes ingresar el departamento o región");
+      return
+    }
+    if (!country) {
+      toast.error("Debes ingresar el país");
+      return
+    }
 
-    await onSubmit();
+    onSubmit();
   };
 
   return (
@@ -219,7 +250,7 @@ export function CheckoutForm({
       </div>
 
       <div className="border-t border-slate-200 px-6 py-5">
-        <CheckoutPayButton/>
+        <CheckoutPayButton />
       </div>
     </form>
   );
