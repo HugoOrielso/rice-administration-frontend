@@ -112,7 +112,7 @@ export default function ResultadoContent() {
                     </p>
                     <button
                         onClick={() => router.push("/")}
-                        className="mt-6 px-6 py-3 bg-white text-black rounded-xl"
+                        className="mt-6 px-6 py-3 bg-white text-black rounded-xl cursor-pointer"
                     >
                         Volver al inicio
                     </button>
@@ -220,7 +220,7 @@ export default function ResultadoContent() {
                     <div className="mt-8 flex gap-3">
                         <button
                             onClick={() => router.push("/")}
-                            className="flex-1 px-5 py-3 bg-black text-white rounded-xl"
+                            className="flex-1 px-5 py-3 bg-black text-white rounded-xl cursor-pointer"
                         >
                             Volver al inicio
                         </button>
