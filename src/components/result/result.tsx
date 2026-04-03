@@ -40,9 +40,9 @@ export default function ResultadoContent() {
         }
 
         const { data } = await axiosClientPublic.get<PaymentResponse>(
-          `/payments/${invoiceNumber}`
+          `/invoices/${invoiceNumber}`
         );
-
+        console.log(data)
         const invoice = data.data;
         setInvoiceData(invoice);
 
