@@ -7,7 +7,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={() => signOut({ callbackUrl: "/login" })}
-      className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 transition font-medium"
+      className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 transition font-medium cursor-pointer"
     >
       <LogOut className="w-4 h-4" />
       Cerrar sesión

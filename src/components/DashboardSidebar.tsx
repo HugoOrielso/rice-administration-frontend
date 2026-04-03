@@ -34,7 +34,9 @@ export default function DashboardSidebar() {
     .filter((link) => userRole && link.roles.includes(userRole))
     .map((link) => ({
       ...link,
-      children: link.children?.filter((child) => userRole && child.roles.includes(userRole)),
+      children: link.children?.filter(
+        (child) => userRole && child.roles.includes(userRole)
+      ),
     }));
 
   const renderLink = (link: SidebarLink) => {
@@ -49,16 +51,15 @@ export default function DashboardSidebar() {
     const isActive = pathname === href;
     const isChildActive = visibleChildren.some((child) => pathname === child.href);
 
-    // EXPANDED + HIJOS
     if (hasChildren && state === "expanded") {
       return (
         <SidebarMenuItem key={href}>
           <SidebarMenuButton
             onClick={() => toggleMenu(href)}
             className={cn(
-              "w-full border-none shadow-none hover:bg-(--sidebar-hover) focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer",
+              "w-full border-none shadow-none hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer",
               (isActive || isChildActive) &&
-              "text-main hover:bg-gray-50 hover:text-main"
+              "bg-green-100 hover:bg-green-100 font-semibold"
             )}
           >
             <Icon className="w-5 h-5 shrink-0" />
@@ -76,9 +77,9 @@ export default function DashboardSidebar() {
                 <SidebarMenuItem key={childHref}>
                   <SidebarMenuButton
                     className={cn(
-                      "border-none shadow-none hover:bg-(--sidebar-hover) focus-visible:ring-0 focus-visible:ring-offset-0",
+                      "border-none shadow-none hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0",
                       pathname === childHref &&
-                      "text-main hover:bg-gray-50 hover:text-main"
+                      "bg-green-100 hover:bg-green-100 font-semibold"
                     )}
                   >
                     <Link
@@ -97,18 +98,17 @@ export default function DashboardSidebar() {
       );
     }
 
-    // COLLAPSED + HIJOS
     if (hasChildren && state === "collapsed") {
       return (
         <SidebarMenuItem key={href} className="p-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild >
+            <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 tooltip={label}
                 className={cn(
-                  "w-full border-none shadow-none hover:bg-(--sidebar-hover) focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer justify-center",
+                  "w-full border-none shadow-none hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 cursor-pointer justify-center",
                   (isActive || isChildActive) &&
-                  "text-main hover:bg-gray-50 hover:text-main"
+                  "bg-green-100 hover:bg-green-100 font-semibold"
                 )}
               >
                 <Icon className="w-5 h-5 shrink-0" />
@@ -132,8 +132,8 @@ export default function DashboardSidebar() {
                       key={sub.href}
                       href={sub.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-(--sidebar-hover)",
-                        subActive && "text-main hover:bg-gray-50 hover:text-main"
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition hover:bg-white",
+                        subActive && "bg-green-100 hover:bg-green-100 font-semibold"
                       )}
                     >
                       <SubIcon className="w-4 h-4 shrink-0" />
@@ -148,18 +148,20 @@ export default function DashboardSidebar() {
       );
     }
 
-    // LINK NORMAL
     return (
       <SidebarMenuItem key={href}>
         <SidebarMenuButton
           tooltip={state === "collapsed" ? label : undefined}
           className={cn(
-            "border-none shadow-none hover:bg-(--sidebar-hover) focus-visible:ring-0 focus-visible:ring-offset-0",
+            "border-none shadow-none hover:bg-white  focus-visible:ring-0 focus-visible:ring-offset-0",
             isActive &&
-            "bg-(--sidebar-active) text-(--color-brand-orange-dark) font-semibold"
+            "bg-green-100 hover:bg-green-100 font-semibold"
           )}
         >
-          <Link href={href} className="flex items-center gap-3 py-3 text-sm w-full font-medium transition">
+          <Link
+            href={href}
+            className="flex items-center gap-3 py-3 text-sm w-full font-medium transition"
+          >
             <Icon className="w-5 h-5 shrink-0" />
             <span>{label}</span>
           </Link>
@@ -169,28 +171,45 @@ export default function DashboardSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className=" border-b border-(--color-brand-orange-light)">
-        <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
-          <div className="group-data-[collapsible=icon]:hidden flex items-center gap-2 text-(--color-brand-orange) font-semibold text-lg">
+    <>
+      {/* MOBILE HEADER */}
+      <div className="lg:hidden">
+        <div className="flex h-16 items-center justify-between  bg-white px-4 lg:hidden">
+          <div className="text-base font-semibold text-(--color-brand-green)">
             Administración
           </div>
 
-          <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 cursor-pointer border-none shadow-none bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0" />
+          <SidebarTrigger className="cursor-pointer border-none shadow-none bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0" />
         </div>
-      </SidebarHeader>
+        <Separator />
+      </div>
 
-      <Separator />
+      {/* DESKTOP SIDEBAR */}
+      <div className="hidden lg:block">
+        <Sidebar collapsible="icon">
+          <SidebarHeader >
+            <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
+              <div className="group-data-[collapsible=icon]:hidden flex items-center gap-2 text-(--color-brand-green) font-semibold text-lg">
+                Administración
+              </div>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>{filteredLinks.map(renderLink)}</SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
+              <SidebarTrigger className="ml-auto group-data-[collapsible=icon]:ml-0 cursor-pointer border-none shadow-none bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0" />
+            </div>
+          </SidebarHeader>
 
-      <SidebarFooter className="p-4 border-t border-gray-200 dark:border-white/10">
-        <LogoutButton />
-      </SidebarFooter>
-    </Sidebar>
+          <Separator />
+
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarMenu>{filteredLinks.map(renderLink)}</SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter className="p-4 border-t border-gray-200 dark:border-white/10 flex lg:hidden">
+            <LogoutButton />
+          </SidebarFooter>
+        </Sidebar>
+      </div>
+    </>
   );
 }

@@ -52,7 +52,7 @@ export default function FacturasPage() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            <div className="hidden gap-4 md:grid md:grid-cols-4">
                 {/* Total */}
                 <Card>
                     <CardContent className="p-4">
