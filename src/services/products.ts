@@ -6,7 +6,6 @@ export async function getPublicProducts(): Promise<ProductCardItem[]> {
     const data: ProductApiResponse[] = res.data;
 
     return data
-      .filter((product) => product.isActive)
       .map((product) => ({
         id: product.id,
         name: product.name,
