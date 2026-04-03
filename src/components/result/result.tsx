@@ -25,7 +25,7 @@ export default function ResultadoContent() {
 
   const resetAll = useCartStore((state) => state.resetAll);
 
-  const invoiceNumber = params.get("invoiceNumber");
+  const invoiceNumber = params.get("reference");
   const [status, setStatus] = useState<PaymentStatus>("LOADING");
   const [message, setMessage] = useState("Verificando pago...");
   const [invoiceData, setInvoiceData] = useState<PaymentResponse["data"] | null>(null);
