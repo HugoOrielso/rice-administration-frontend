@@ -1,19 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { FormEvent } from "react";
-import { CreditCard, Mail, MapPin, User } from "lucide-react";
-import { useCartStore } from "@/store/cart-store";
-
-import { CheckoutFormData } from "@/store/cart-store";
-
-interface CheckoutFormProps {
-  form: CheckoutFormData;
-  totalPrice: number;
-  onBack: () => void;
-  onChange: (field: keyof CheckoutFormData, value: string) => void;
-  onSubmit: () => void;
-}
+import { CreditCard, Mail, MapPin, Phone, User, Building2, Globe } from "lucide-react";
+import { CheckoutFormData, useCartStore } from "@/store/cart-store";
+import { CheckoutPayButton } from "./CheckoutButton";
 
 const documentTypeOptions = [
   { value: "CEDULA_CIUDADANIA", label: "CC" },
@@ -23,13 +13,18 @@ const documentTypeOptions = [
   { value: "RIF", label: "RIF" },
 ] as const;
 
+interface CheckoutFormProps {
+  form: CheckoutFormData;
+  totalPrice: number;
+  onBack: () => void;
+  onChange: (field: keyof CheckoutFormData, value: string) => void;
+  onSubmit: () => void;
+}
 export function CheckoutForm({
-  form,
-  totalPrice,
-  onBack,
-  onChange,
   onSubmit,
 }: CheckoutFormProps) {
+  const form = useCartStore((state) => state.checkoutForm);
+  const totalPrice = useCartStore((state) => state.totalPrice());
   const setCheckoutField = useCartStore((state) => state.setCheckoutField);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -39,33 +34,23 @@ export function CheckoutForm({
     const documentNumber = form.documentNumber.trim();
     const address = form.address.trim();
     const email = form.email.trim();
+    const phone = form.phone.trim();
+    const city = form.city.trim();
+    const region = form.region.trim();
+    const country = form.country.trim();
 
-    if (!fullName) {
-      alert("Debes ingresar tu nombre completo");
-      return;
-    }
+    if (!fullName) return alert("Debes ingresar tu nombre completo");
+    if (!form.documentType) return alert("Debes seleccionar el tipo de documento");
+    if (!documentNumber) return alert("Debes ingresar el número de documento");
+    if (!address) return alert("Debes ingresar la dirección");
+    if (!email) return alert("Debes ingresar el correo");
+    if (!phone) return alert("Debes ingresar el teléfono");
+    if (!form.phonePrefix.trim()) return alert("Debes ingresar el prefijo del teléfono");
+    if (!city) return alert("Debes ingresar la ciudad");
+    if (!region) return alert("Debes ingresar el departamento o región");
+    if (!country) return alert("Debes ingresar el país");
 
-    if (!form.documentType) {
-      alert("Debes seleccionar el tipo de documento");
-      return;
-    }
-
-    if (!documentNumber) {
-      alert("Debes ingresar el número de documento");
-      return;
-    }
-
-    if (!address) {
-      alert("Debes ingresar la dirección");
-      return;
-    }
-
-    if (!email) {
-      alert("Debes ingresar el correo");
-      return;
-    }
-
-    onSubmit();
+    await onSubmit();
   };
 
   return (
@@ -77,7 +62,7 @@ export function CheckoutForm({
               <User className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                value={form.fullName ?? ''}
+                value={form.fullName}
                 onChange={(e) => setCheckoutField("fullName", e.target.value)}
                 placeholder="Tu nombre completo"
                 className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
@@ -90,7 +75,17 @@ export function CheckoutForm({
             <div className="grid grid-cols-3 gap-2">
               <select
                 value={form.documentType}
-                onChange={(e) => setCheckoutField("documentType", e.target.value)}
+                onChange={(e) =>
+                  setCheckoutField(
+                    "documentType",
+                    e.target.value as
+                    | "CEDULA_CIUDADANIA"
+                    | "NIT"
+                    | "CEDULA_EXTRANJERIA"
+                    | "RIF"
+                    | "PPT"
+                  )
+                }
                 className="col-span-1 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600"
                 required
               >
@@ -105,8 +100,10 @@ export function CheckoutForm({
                 <CreditCard className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  value={form.documentNumber ?? ''}
-                  onChange={(e) => setCheckoutField("documentNumber", e.target.value)}
+                  value={form.documentNumber}
+                  onChange={(e) =>
+                    setCheckoutField("documentNumber", e.target.value)
+                  }
                   placeholder="Número de documento"
                   className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
                   required
@@ -120,7 +117,7 @@ export function CheckoutForm({
               <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
-                value={form.address ?? ''}
+                value={form.address}
                 onChange={(e) => setCheckoutField("address", e.target.value)}
                 placeholder="Dirección de facturación"
                 className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
@@ -134,10 +131,79 @@ export function CheckoutForm({
               <Mail className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="email"
-                value={form.email ?? ''}
+                value={form.email}
                 onChange={(e) => setCheckoutField("email", e.target.value)}
                 placeholder="correo@ejemplo.com"
                 className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
+                required
+              />
+            </div>
+          </FieldWrapper>
+
+          <FieldWrapper label="Teléfono">
+            <div className="grid grid-cols-3 gap-2">
+              <input
+                type="text"
+                value={form.phonePrefix}
+                onChange={(e) => setCheckoutField("phonePrefix", e.target.value)}
+                placeholder="+57"
+                className="col-span-1 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600"
+                required
+              />
+              <div className="relative col-span-2">
+                <Phone className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setCheckoutField("phone", e.target.value)}
+                  placeholder="3001234567"
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
+                  required
+                />
+              </div>
+            </div>
+          </FieldWrapper>
+
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <FieldWrapper label="Ciudad">
+              <div className="relative">
+                <Building2 className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={form.city}
+                  onChange={(e) => setCheckoutField("city", e.target.value)}
+                  placeholder="Bogotá"
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
+                  required
+                />
+              </div>
+            </FieldWrapper>
+
+            <FieldWrapper label="Departamento / Región">
+              <div className="relative">
+                <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={form.region}
+                  onChange={(e) => setCheckoutField("region", e.target.value)}
+                  placeholder="Cundinamarca"
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
+                  required
+                />
+              </div>
+            </FieldWrapper>
+          </div>
+
+          <FieldWrapper label="País">
+            <div className="relative">
+              <Globe className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={form.country}
+                onChange={(e) => setCheckoutField("country", e.target.value.toUpperCase())}
+                placeholder="CO"
+                maxLength={2}
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm uppercase text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
                 required
               />
             </div>
@@ -153,16 +219,12 @@ export function CheckoutForm({
       </div>
 
       <div className="border-t border-slate-200 px-6 py-5">
-        <button
-          type="submit"
-          className="w-full rounded-full bg-emerald-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-800"
-        >
-          Continuar al pago
-        </button>
+        <CheckoutPayButton/>
       </div>
     </form>
   );
 }
+
 function FieldWrapper({
   label,
   children,

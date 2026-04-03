@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { WompiScriptLoader } from "@/components/wompiLoader";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -22,13 +23,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html
       lang="en"
       className={`${poppins.variable} h-full antialiased`}
     >
-      <body cz-shortcut-listen="true" suppressHydrationWarning className="min-h-full flex flex-col font-poppins ">      
-        <Toaster richColors/>  
+
+      <body cz-shortcut-listen="true" suppressHydrationWarning className="min-h-full flex flex-col font-poppins ">
+        <WompiScriptLoader/>
+        <Toaster richColors />
         {children}
       </body>
     </html>

@@ -11,6 +11,21 @@ export interface CheckoutFormData {
   documentNumber: string;
   address: string;
   email: string;
+  phone: string;
+  phonePrefix: string;
+  city: string;
+  region: string;
+  country: string;
+}
+
+export interface WompiSessionData {
+  sessionId: string;
+  deviceId: string;
+}
+
+export interface OrderSummary {
+  reference: string;
+  createdAt: string;
 }
 
 interface CartState {
@@ -18,6 +33,8 @@ interface CartState {
   isOpen: boolean;
   checkoutStep: "cart" | "checkout";
   checkoutForm: CheckoutFormData;
+  wompiSession: WompiSessionData | null;
+  orderSummary: OrderSummary | null;
   hasHydrated: boolean;
 
   setHasHydrated: (value: boolean) => void;
@@ -30,13 +47,18 @@ interface CartState {
   goToCart: () => void;
 
   setCheckoutField: (field: keyof CheckoutFormData, value: string) => void;
+  setCheckoutForm: (data: Partial<CheckoutFormData>) => void;
   resetCheckoutForm: () => void;
+
+  setWompiSession: (data: WompiSessionData | null) => void;
+  setOrderSummary: (data: OrderSummary | null) => void;
 
   addToCart: (product: ProductCardItem) => { ok: boolean; message?: string };
   removeFromCart: (id: string) => void;
   increaseQuantity: (id: string) => { ok: boolean; message?: string };
   decreaseQuantity: (id: string) => void;
   clearCart: () => void;
+  resetAll: () => void;
 
   totalItems: () => number;
   totalPrice: () => number;
@@ -48,6 +70,11 @@ const initialCheckoutForm: CheckoutFormData = {
   documentNumber: "",
   address: "",
   email: "",
+  phone: "",
+  phonePrefix: "+57",
+  city: "",
+  region: "",
+  country: "CO",
 };
 
 export const useCartStore = create<CartState>()(
@@ -57,6 +84,8 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       checkoutStep: "cart",
       checkoutForm: initialCheckoutForm,
+      wompiSession: null,
+      orderSummary: null,
       hasHydrated: false,
 
       setHasHydrated: (value) => set({ hasHydrated: value }),
@@ -85,7 +114,19 @@ export const useCartStore = create<CartState>()(
           },
         })),
 
+      setCheckoutForm: (data) =>
+        set((state) => ({
+          checkoutForm: {
+            ...state.checkoutForm,
+            ...data,
+          },
+        })),
+
       resetCheckoutForm: () => set({ checkoutForm: initialCheckoutForm }),
+
+      setWompiSession: (data) => set({ wompiSession: data }),
+
+      setOrderSummary: (data) => set({ orderSummary: data }),
 
       addToCart: (product) => {
         const existing = get().cart.find((item) => item.id === product.id);
@@ -171,6 +212,16 @@ export const useCartStore = create<CartState>()(
         set({
           cart: [],
           checkoutStep: "cart",
+        }),
+
+      resetAll: () =>
+        set({
+          cart: [],
+          isOpen: false,
+          checkoutStep: "cart",
+          checkoutForm: initialCheckoutForm,
+          wompiSession: null,
+          orderSummary: null,
         }),
 
       totalItems: () =>
