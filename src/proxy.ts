@@ -16,20 +16,18 @@ export default function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  // ✅ autenticado si tiene cualquiera de los dos tokens
-  // si accessToken expiró pero hay refreshToken, axios hará el refresh
   const isAuthenticated = Boolean(accessToken || refreshToken);
 
   const isPublicRoute = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
-  // ✅ usuario autenticado intentando entrar a ruta pública (excepto "/")
-  if (isAuthenticated && isPublicRoute && pathname !== "/") {
+  // ✅ autenticado intentando entrar a cualquier ruta pública → dashboard
+  if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL(defaultAuthenticatedRoute, req.url));
   }
 
-  // ✅ usuario no autenticado intentando entrar a ruta privada
+  // ✅ no autenticado intentando entrar a ruta privada → login
   if (!isAuthenticated && !isPublicRoute) {
     const signInUrl = new URL("/login", req.url);
     const callbackUrl = `${pathname}${search || ""}`;
