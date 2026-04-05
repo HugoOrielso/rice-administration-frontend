@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import ProductForm, { ProductFormValues } from "@/components/inventory/ProductForm";
-import { axiosClient } from "@/lib/axios";
+import axiosClient from "@/lib/axios";
 
 type ProductApiResponse = {
     id: string;

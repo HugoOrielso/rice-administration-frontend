@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Package, PackagePlus } from "lucide-react";
-import { axiosClient } from "@/lib/axios";
 import { toast } from "sonner";
 import { getProductColumns } from "@/components/inventory/columns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/inventory/tableProducts";
+import axiosClient from "@/lib/axios";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);

@@ -11,7 +11,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { toast } from "sonner";
-import { axiosClient } from "@/lib/axios";
+import axiosClient from "@/lib/axios";
 
 export type ProductFormValues = {
   name: string;

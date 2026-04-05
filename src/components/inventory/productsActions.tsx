@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { MoreHorizontal, Pencil, Eye, Ban } from "lucide-react";
 import { toast } from "sonner";
-import { axiosClient } from "@/lib/axios";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import axiosClient from "@/lib/axios";
 
 type Props = {
   product: Product;

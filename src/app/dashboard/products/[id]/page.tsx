@@ -17,10 +17,10 @@ import {
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 
-import { axiosClient } from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import axiosClient from "@/lib/axios";
 
 type Product = {
     id: string;

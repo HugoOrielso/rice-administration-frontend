@@ -22,7 +22,7 @@ export function Hero() {
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:px-8 lg:py-24">
         
         {/* 🟢 TEXTO */}
-        <div className="text-center lg:text-left">
+        <div className="text-center items-center justify-center flex flex-col lg:text-left">
           <h1 className="mt-4 max-w-2xl text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
             El arroz que acompaña cada comida con{" "}
             <span className="text-(--color-brand-orange)">
@@ -87,7 +87,7 @@ export function Hero() {
 
           {/* TEXTO VENTAS */}
           <div className="w-full max-w-65 sm:max-w-75 lg:max-w-95 rounded-full bg-white/10 px-4 py-2.5 shadow-xl ring-1 ring-white/20 backdrop-blur-sm text-center">
-            <p className="text-xs sm:text-sm font-semibold text-(--color-brand-orange)">
+            <p className="text-xs lg:text-base font-semibold text-white">
               VENTAS PARA SUDAMÉRICA Y CENTRO AMÉRICA
             </p>
           </div>

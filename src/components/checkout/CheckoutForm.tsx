@@ -1,18 +1,11 @@
 "use client";
 
-import { FormEvent } from "react";
 import { CreditCard, Mail, MapPin, Phone, User, Building2, Globe } from "lucide-react";
 import { CheckoutFormData, useCartStore } from "@/store/cart-store";
 import { CheckoutPayButton } from "./CheckoutButton";
 import { toast } from "sonner";
-
-const documentTypeOptions = [
-  { value: "CEDULA_CIUDADANIA", label: "CC" },
-  { value: "NIT", label: "NIT" },
-  { value: "CEDULA_EXTRANJERIA", label: "CE" },
-  { value: "PPT", label: "PPT" },
-  { value: "RIF", label: "RIF" },
-] as const;
+import { documentTypeOptions } from "@/types/checkout";
+import { checkoutSchema } from "@/schemas/checkout.schema";
 
 interface CheckoutFormProps {
   form: CheckoutFormData;
@@ -28,62 +21,31 @@ export function CheckoutForm({
   const totalPrice = useCartStore((state) => state.totalPrice());
   const setCheckoutField = useCartStore((state) => state.setCheckoutField);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const fullName = form.fullName
-    const documentNumber = form.documentNumber
-    const address = form.address
-    const email = form.email
-    const phone = form.phone
-    const city = form.city
-    const region = form.region
-    const country = form.country
+    const result = checkoutSchema.safeParse({
+      fullName: form.fullName,
+      documentType: form.documentType,
+      documentNumber: form.documentNumber,
+      address: form.address,
+      email: form.email,
+      phonePrefix: form.phonePrefix,
+      phone: form.phone,
+      city: form.city,
+      region: form.region,
+      country: form.country,
+    });
 
-    if (!fullName) {
-      toast.error("Debes ingresar tu nombre completo");
-      return
-    }
-    if (!form.documentType) {
-      toast.error("Debes seleccionar el tipo de documento");
-      return
-    }
-    if (!documentNumber){
-      toast.error("Debes ingresar el número de documento");
-      return
-    } 
-    if (!address) {
-      toast.error("Debes ingresar la dirección");
-      return
-    }
-    if (!email) {
-      toast.error("Debes ingresar el correo");
-      return
-    }
-    if (!phone) {
-      toast.error("Debes ingresar el teléfono");
-      return
-    }
-    if (!form.phonePrefix.trim()) {
-      toast.error("Debes ingresar el prefijo del teléfono");
-      return
-    }
-    if (!city) {
-      toast.error("Debes ingresar la ciudad");
-      return
-    }
-    if (!region) {
-      toast.error("Debes ingresar el departamento o región");
-      return
-    }
-    if (!country) {
-      toast.error("Debes ingresar el país");
-      return
+    if (!result.success) {
+      const firstError = result.error.issues[0]?.message ?? "Datos inválidos";
+      toast.error(firstError);
+      return;
     }
 
+    // 👇 aquí ya todo está validado
     onSubmit();
   };
-
   return (
     <form onSubmit={handleSubmit} className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-6 py-5">
@@ -109,12 +71,7 @@ export function CheckoutForm({
                 onChange={(e) =>
                   setCheckoutField(
                     "documentType",
-                    e.target.value as
-                    | "CEDULA_CIUDADANIA"
-                    | "NIT"
-                    | "CEDULA_EXTRANJERIA"
-                    | "RIF"
-                    | "PPT"
+                    e.target.value as typeof documentTypeOptions[number]["value"]
                   )
                 }
                 className="col-span-1 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600"
@@ -122,7 +79,7 @@ export function CheckoutForm({
               >
                 {documentTypeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
-                    {option.label}
+                    {option.value} - {option.label}
                   </option>
                 ))}
               </select>
@@ -179,7 +136,7 @@ export function CheckoutForm({
                 onChange={(e) => setCheckoutField("phonePrefix", e.target.value)}
                 placeholder="+57"
                 className="col-span-1 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600"
-                required
+                required maxLength={4}
               />
               <div className="relative col-span-2">
                 <Phone className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />

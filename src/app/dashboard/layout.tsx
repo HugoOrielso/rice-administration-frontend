@@ -1,9 +1,9 @@
-import LogoutButton from "@/components/common/LogoutButton";
+// app/dashboard/layout.tsx
+import SessionInitializer from "@/components/common/SessionInitializer";
 import DashboardSidebar from "@/components/DashboardSidebar";
-import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SessionProvider } from "next-auth/react";
+import LogoutButton from "@/components/common/LogoutButton";
 
 export default async function DashboardLayout({
   children,
@@ -11,28 +11,32 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SessionProvider>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full flex-col lg:flex-row">
-          <TooltipProvider>
-            {/* Sidebar */}
-            <div className="w-full lg:w-auto">
-              <DashboardSidebar />
-            </div>
-          </TooltipProvider>
+    <SidebarProvider>
+      <SessionInitializer />
+      <TooltipProvider>
+        {/* Sidebar solo desktop */}
+        <DashboardSidebar />
 
-          {/* Contenido */}
-          <SidebarInset className="flex-1">
-            <div className="hidden p-3 items-center justify-end lg:flex">
-                <LogoutButton/>
+        {/* Contenido principal */}
+        <SidebarInset className="flex flex-col min-h-screen w-full">
+
+          {/* Header del main — desktop y mobile */}
+          <header className="flex py-3 shrink-0 items-center justify-between border-b bg-white px-4">
+            {/* SidebarTrigger aquí es lo que controla el sidebar en desktop */}
+            <SidebarTrigger className="cursor-pointer" />
+
+            <div className="flex items-center gap-3">
+              <LogoutButton />
             </div>
-            <Separator/>
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </SessionProvider>
+          </header>
+
+          {/* Página */}
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+
+        </SidebarInset>
+      </TooltipProvider>
+    </SidebarProvider>
   );
 }

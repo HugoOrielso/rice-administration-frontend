@@ -23,8 +23,8 @@ export function Header() {
             />
           </div>
 
-          <div className="hidden lg:flex">
-            <p className="lg:text-lg text-sm font-extrabold tracking-tight text-(--color-brand-green)">
+          <div className="hidden lg:flex flex-col ">
+            <p className="lg:text-lg text-sm  font-extrabold tracking-tight text-(--color-brand-green)">
               Andina group & Capital S.A.S
             </p>
             <p className="text-sm text-slate-500">

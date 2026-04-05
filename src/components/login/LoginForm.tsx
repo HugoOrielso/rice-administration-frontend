@@ -1,5 +1,5 @@
 "use client";
-import { signIn } from 'next-auth/react';
+import axiosClient from '@/lib/axios';
 import { useRouter } from "next/navigation";
 import React, { useState } from 'react'
 import { toast } from 'sonner';
@@ -20,19 +20,13 @@ const LoginForm = () => {
         if (!password) return toast.error("Enter your password")
 
         try {
-            const result = await signIn("credentials", {
-                email: email.trim(),
-                password: password.trim(),
-                redirect: false,
+            await axiosClient.post("/auth/login", {
+                email,
+                password,
             });
 
-
-            if (result?.error) {
-                toast.error("Correo o contraseña incorrectos.");
-            } else {
-                router.replace("/dashboard")
-            }
-        } catch{
+            router.replace("/dashboard")
+        } catch {
             toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
         } finally {
             setIsLoading(false);
@@ -75,14 +69,14 @@ const LoginForm = () => {
                     <label
                         htmlFor="password"
                         className="block text-[11px] text-green-800 font-semibold tracking-[0.08em] uppercase mb-2"
-                        
+
                     >
                         Contraseña
                     </label>
                     <div className="relative">
                         <span
                             className="absolute text-green-800 left-4 top-1/2 -translate-y-1/2 pointer-events-none"
-                            
+
                         >
                             <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -96,7 +90,7 @@ const LoginForm = () => {
                             required
                             autoComplete="current-password"
                             className="w-full h-13 text-black focus:shadow focus:shadow-green-600 pl-11 pr-12 rounded-xl text-sm bg-white outline-none transition-all border placeholder:text-gray-300"
-                            
+
                         />
                         <button
                             type="button"

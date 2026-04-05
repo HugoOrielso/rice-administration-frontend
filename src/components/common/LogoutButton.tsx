@@ -1,16 +1,23 @@
 "use client";
 
-import { signOut } from "next-auth/react";
+import axiosClient from "@/lib/axios";
+import { useSessionStore } from "@/store/sessionStore";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LogoutButton() {
+  const clearSession = useSessionStore((s) => s.clearSession);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await axiosClient.post("/auth/logout");
+    clearSession();
+    router.push("/login");
+  };
+
   return (
-    <button
-      onClick={() => signOut({ callbackUrl: "/login" })}
-      className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 transition font-medium cursor-pointer"
-    >
-      <LogOut className="w-4 h-4" />
-      Cerrar sesión
+    <button onClick={handleLogout} className="text-red-500 cursor-pointer flex items-center text-sm gap-2">
+      <LogOut className="h-4 w-4"/> <span>Cerrar sesión</span>
     </button>
   );
 }

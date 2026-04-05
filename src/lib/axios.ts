@@ -1,63 +1,77 @@
-import axios from "axios";
-import { getSession, signOut } from "next-auth/react";
+import axios, { AxiosError } from "axios";
 
-export const axiosClient = axios.create({
+const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-}); 
+  withCredentials: true,
+});
 
-axiosClient.interceptors.request.use(
-  async (config) => {
-    const session = await getSession();
+let isRefreshing = false;
+let failedQueue: {
+  resolve: () => void;
+  reject: (error: unknown) => void;
+}[] = [];
 
-    if (session?.error?.includes("RefreshFailed")) {
-      await signOut({ callbackUrl: "/login" });
-      return Promise.reject(new Error("Session expired"));
+const processQueue = (error: unknown = null) => {
+  failedQueue.forEach((promise) => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
     }
+  });
 
-    const token = session?.accessToken;
+  failedQueue = [];
+};
 
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// ✅ rutas que nunca deben disparar refresh
+const AUTH_URLS = ["/auth/refresh", "/auth/login"];
 
 axiosClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const status = error.response?.status;
+  async (error: AxiosError) => {
+    const originalRequest = error.config as typeof error.config & {
+      _retry?: boolean;
+    };
 
-    if (status === 401) {
-      try {
-        const session = await getSession();
-
-        if (session?.refreshToken) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
-            {},
-            {
-              headers: {
-                "x-refresh-token": session.refreshToken,
-              },
-            }
-          );
-        }
-      } catch (logoutError) {
-        console.error("Logout backend failed:", logoutError);
-      }
-
-      await signOut({ callbackUrl: "/login" });
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    // ✅ si el 401 viene de login o refresh, no intentar refresh
+    const requestUrl = originalRequest?.url ?? "";
+    if (AUTH_URLS.some((url) => requestUrl.includes(url))) {
+      return Promise.reject(error);
+    }
+
+    if (originalRequest?._retry) {
+      window.location.href = "/login";
+      return Promise.reject(error);
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({
+          resolve: () => resolve(axiosClient(originalRequest!)),
+          reject,
+        });
+      });
+    }
+
+    originalRequest!._retry = true;
+    isRefreshing = true;
+
+    try {
+      await axiosClient.post("/auth/refresh");
+      processQueue(null);
+      return axiosClient(originalRequest!);
+    } catch (refreshError) {
+      processQueue(refreshError);
+      window.location.href = "/login";
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
-
 export default axiosClient;
-
-
