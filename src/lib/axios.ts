@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "/",
+  baseURL: "/api",
   withCredentials: true,
 });
 
