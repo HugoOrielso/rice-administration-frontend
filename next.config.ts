@@ -7,11 +7,11 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination: process.env.NODE_ENV === "production"
-          ? "http://srv-captain--backend:4000/:path*"  // ✅ red interna de CapRover
-          : "http://localhost:4000/:path*",             // ✅ desarrollo local
+          ? "http://srv-captain--backend/:path*"  // ✅ sin puerto en CapRover
+          : "http://localhost:4000/:path*",
       },
     ];
-  },
+  }
 };
 
 export default nextConfig;
