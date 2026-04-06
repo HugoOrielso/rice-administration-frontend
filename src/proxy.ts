@@ -13,21 +13,17 @@ const defaultAuthenticatedRoute = "/dashboard";
 export default function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  const accessToken = req.cookies.get("accessToken")?.value;
-  const refreshToken = req.cookies.get("refreshToken")?.value;
-
-  const isAuthenticated = Boolean(accessToken || refreshToken);
+  // ✅ lee la cookie ligera del frontend
+  const isAuthenticated = Boolean(req.cookies.get("isAuthenticated")?.value);
 
   const isPublicRoute = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
-  // ✅ usuario autenticado intentando entrar a ruta pública (excepto "/")
   if (isAuthenticated && isPublicRoute && pathname !== "/") {
     return NextResponse.redirect(new URL(defaultAuthenticatedRoute, req.url));
   }
 
-  // ✅ usuario no autenticado intentando entrar a ruta privada
   if (!isAuthenticated && !isPublicRoute) {
     const signInUrl = new URL("/login", req.url);
     const callbackUrl = `${pathname}${search || ""}`;
