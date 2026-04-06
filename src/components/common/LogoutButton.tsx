@@ -4,7 +4,6 @@ import axiosClient from "@/lib/axios";
 import { useSessionStore } from "@/store/sessionStore";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
 
 export default function LogoutButton() {
   const clearSession = useSessionStore((s) => s.clearSession);
@@ -12,7 +11,6 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     await axiosClient.post("/auth/logout");
-    Cookies.remove("isAuthenticated"); // ✅ limpiar cookie del middleware
     clearSession();
     router.push("/login");
   };

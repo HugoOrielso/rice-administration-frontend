@@ -3,7 +3,6 @@ import axiosClient from '@/lib/axios';
 import { useRouter } from "next/navigation";
 import React, { useState } from 'react'
 import { toast } from 'sonner';
-import Cookies from 'js-cookie'; 
 
 const LoginForm = () => {
     const router = useRouter();
@@ -14,25 +13,19 @@ const LoginForm = () => {
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setIsLoading(true);
-
-        const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
-        const email = (data.email ?? "").trim();
-        const password = (data.password ?? "").trim();
-
-        if (!email) return toast.error("Enter your email");
-        if (!password) return toast.error("Enter your password");
+        const data = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>
+        const email = (data.email ?? "").trim()
+        const password = (data.password ?? "").trim()
+        if (!email) return toast.error("Enter your email")
+        if (!password) return toast.error("Enter your password")
 
         try {
-            await axiosClient.post("/auth/login", { email, password });
-
-            // ✅ cookie ligera para el middleware — no contiene datos sensibles
-            Cookies.set("isAuthenticated", "true", {
-                expires: 7,
-                sameSite: "lax",
-                secure: true,
+            await axiosClient.post("/auth/login", {
+                email,
+                password,
             });
 
-            router.replace("/dashboard");
+            router.replace("/dashboard")
         } catch {
             toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
         } finally {
