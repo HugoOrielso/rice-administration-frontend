@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Building2, MapPin, Globe, ChevronDown, Search } from "lucide-react";
-import { COLOMBIA_DEPARTMENTS, LATAM_COUNTRIES } from "./locationInfo";
+import { LATAM_COUNTRIES, LOCATION_BY_COUNTRY } from "./locationInfo";
 
 interface LocationSelectorProps {
   city: string;
@@ -132,14 +132,18 @@ function DepartmentSelect({
   value,
   onChange,
   onCityReset,
+  optionsMap,
+  label = "Departamento / Región",
 }: {
   value: string;
   onChange: (dep: string) => void;
   onCityReset: () => void;
+  optionsMap: Record<string, string[]>;
+  label?: string;
 }) {
   const { open, setOpen, query, setQuery, ref } = useDropdown();
 
-  const departments = Object.keys(COLOMBIA_DEPARTMENTS).sort();
+  const departments = Object.keys(optionsMap).sort();
   const filtered = departments.filter((d) =>
     d.toLowerCase().includes(query.toLowerCase())
   );
@@ -160,7 +164,7 @@ function DepartmentSelect({
       >
         <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
         <span className={`flex-1 text-left ${value ? "text-slate-900" : "text-slate-400"}`}>
-          {value || "Departamento / Región"}
+          {value || label}
         </span>
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}
@@ -176,7 +180,7 @@ function DepartmentSelect({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar departamento..."
+              placeholder={`Buscar ${label.toLowerCase()}...`}
               className="flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
             />
           </div>
@@ -211,14 +215,16 @@ function CitySelect({
   value,
   department,
   onChange,
+  optionsMap,
 }: {
   value: string;
   department: string;
   onChange: (city: string) => void;
+  optionsMap: Record<string, string[]>;
 }) {
   const { open, setOpen, query, setQuery, ref } = useDropdown();
 
-  const cities = department ? COLOMBIA_DEPARTMENTS[department] ?? [] : [];
+  const cities = department ? optionsMap[department] ?? [] : [];
   const filtered = cities.filter((c) =>
     c.toLowerCase().includes(query.toLowerCase())
   );
@@ -229,7 +235,6 @@ function CitySelect({
     setQuery("");
   }
 
-  // If no department selected, fall back to plain text input
   if (!department) {
     return (
       <div className="relative">
@@ -298,7 +303,6 @@ function CitySelect({
     </div>
   );
 }
-
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export default function LocationSelector({
@@ -310,21 +314,25 @@ export default function LocationSelector({
   onCountryChange,
 }: LocationSelectorProps) {
   const isColombia = country === "Colombia";
+  const isVenezuela = country === "Venezuela";
+  const hasMappedRegions = isColombia || isVenezuela;
+
+  const selectedMap = LOCATION_BY_COUNTRY[country] ?? {};
 
   return (
     <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-      {/* País */}
       <FieldWrapper label="País">
         <CountrySelect value={country} onChange={onCountryChange} />
       </FieldWrapper>
 
-      {/* Departamento — solo Colombia; si no, texto libre */}
       <FieldWrapper label="Departamento / Región">
-        {isColombia ? (
+        {hasMappedRegions ? (
           <DepartmentSelect
             value={region}
             onChange={onRegionChange}
             onCityReset={() => onCityChange("")}
+            optionsMap={selectedMap}
+            label={isVenezuela ? "Estado" : "Departamento / Región"}
           />
         ) : (
           <div className="relative">
@@ -340,13 +348,13 @@ export default function LocationSelector({
         )}
       </FieldWrapper>
 
-      {/* Ciudad */}
       <FieldWrapper label="Ciudad">
-        {isColombia ? (
+        {hasMappedRegions ? (
           <CitySelect
             value={city}
             department={region}
             onChange={onCityChange}
+            optionsMap={selectedMap}
           />
         ) : (
           <div className="relative">

@@ -13,15 +13,17 @@ const defaultAuthenticatedRoute = "/dashboard";
 export default function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
-  const accessToken = req.cookies.get("accessToken")?.value;
-  const refreshToken = req.cookies.get("refreshToken")?.value;
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookiePrefix = isProduction ? "__Secure-" : "dev-";
+
+  const accessToken = req.cookies.get(`${cookiePrefix}accessToken`)?.value;
+  const refreshToken = req.cookies.get(`${cookiePrefix}refreshToken`)?.value;
 
   const isAuthenticated = Boolean(accessToken || refreshToken);
 
   const isPublicRoute = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
-
 
   if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL(defaultAuthenticatedRoute, req.url));
