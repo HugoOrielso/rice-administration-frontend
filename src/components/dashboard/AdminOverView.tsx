@@ -229,6 +229,7 @@ function StatusBadge({ status }: { status: string }) {
     FAILED: "bg-red-100 text-red-700",
     DECLINED: "bg-red-100 text-red-700",
     ERROR: "bg-red-100 text-red-700",
+    CANCELLED: "bg-red-100 text-red-700",
   };
 
   return (

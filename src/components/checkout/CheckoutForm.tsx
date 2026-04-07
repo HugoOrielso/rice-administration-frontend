@@ -28,7 +28,6 @@ export function CheckoutForm({
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(form)
     const result = checkoutSchema.safeParse({
       fullName: form.fullName,
       documentType: form.documentType,
@@ -41,7 +40,6 @@ export function CheckoutForm({
       department: form.department,
       country: form.country,
     });
-    console.log(result)
     if (!result.success) {
       const firstError = result.error.issues[0]?.message ?? "Datos inválidos";
       toast.error(firstError);

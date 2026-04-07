@@ -3,72 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import axiosClient from "@/lib/axios";
-import { CheckCircle2, Clock3, CreditCard, Receipt, User } from "lucide-react";
+import { CreditCard, User } from "lucide-react";
+import { formatCurrency, formatDate, getStatusHeaderStyles, getStatusIcon, getStatusLabel, getStatusStyles } from "@/components/invoices/utilst";
 
-type InvoiceStatus = "PENDING" | "PAID" | "APPROVED" | "FAILED" | "DECLINED" | "ERROR";
-
-
-function formatCurrency(value: number) {
-  return value.toLocaleString("es-CO", {
-    style: "currency",
-    currency: "COP",
-    minimumFractionDigits: 2,
-  });
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleString("es-CO", {
-    dateStyle: "long",
-    timeStyle: "short",
-  });
-}
-
-function getStatusStyles(status: InvoiceStatus) {
-  switch (status) {
-    case "PAID":
-    case "APPROVED":
-      return "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
-    case "PENDING":
-      return "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
-    case "FAILED":
-    case "DECLINED":
-    case "ERROR":
-      return "bg-red-50 text-red-700 ring-1 ring-red-200";
-    default:
-      return "bg-slate-50 text-slate-700 ring-1 ring-slate-200";
-  }
-}
-
-function getStatusLabel(status: InvoiceStatus) {
-  switch (status) {
-    case "PAID":
-      return "Pagada";
-    case "APPROVED":
-      return "Aprobada";
-    case "PENDING":
-      return "Pendiente";
-    case "FAILED":
-      return "Fallida";
-    case "DECLINED":
-      return "Declinada";
-    case "ERROR":
-      return "Error";
-    default:
-      return status;
-  }
-}
-
-function getStatusIcon(status: InvoiceStatus) {
-  if (status === "PAID" || status === "APPROVED") {
-    return <CheckCircle2 className="h-4 w-4" />;
-  }
-
-  if (status === "PENDING") {
-    return <Clock3 className="h-4 w-4" />;
-  }
-
-  return <Receipt className="h-4 w-4" />;
-}
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -138,21 +75,21 @@ export default function InvoiceDetailPage() {
     <div className="min-h-screen bg-slate-50 px-4 py-6 md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_10px_35px_rgba(15,23,42,0.06)]">
-          <div className="border-b border-slate-200 bg-linear-to-r from-green-900 via-green-800 to-green-900 px-6 py-8 text-white md:px-10">
+          <div  className={`border-b border-slate-200 ${getStatusHeaderStyles(invoice.status)} px-6 py-8  md:px-10`}>
             <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
               <div className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.22em] text-slate-300">
+                <p className="text-xs uppercase tracking-[0.22em] ">
                   Comprobante de compra
                 </p>
 
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+                  <h1 className="text-3xl font-bold tracking-tight md:text-4xl ">
                     Factura
                   </h1>
-                  <p className="mt-2 text-lg text-slate-200">{invoice.invoiceNumber}</p>
+                  <p className="mt-2 text-lg">{invoice.invoiceNumber}</p>
                 </div>
 
-                <p className="text-sm text-slate-300">
+                <p className="text-sm">
                   Emitida el {formatDate(invoice.createdAt)}
                 </p>
               </div>
@@ -167,9 +104,9 @@ export default function InvoiceDetailPage() {
                   {getStatusLabel(invoice.status)}
                 </span>
 
-                <div className="text-sm text-slate-200">
+                <div className="text-sm ">
                   <p>
-                    <span className="text-slate-400">Actualizada:</span>{" "}
+                    <span className="">Actualizada:</span>{" "}
                     {formatDate(invoice.updatedAt)}
                   </p>
                 </div>
@@ -190,6 +127,7 @@ export default function InvoiceDetailPage() {
                 <p className="text-lg font-semibold text-slate-900">{invoice.customerName}</p>
                 <p>{invoice.customerEmail}</p>
                 <p>{invoice.customerPhone}</p>
+                <p>{invoice.customerCountry} - {invoice.customerDepartment} - {invoice.customerCountry}</p>
                 <p>{invoice.customerAddress}</p>
                 <div className="pt-2 text-slate-600">
                   <span className="font-semibold text-slate-800">Documento:</span>{" "}

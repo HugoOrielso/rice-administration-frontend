@@ -1,4 +1,4 @@
-type InvoiceStatus = "PENDING" | "PAID" | "APPROVED" | "FAILED" | "DECLINED" | "ERROR";
+type InvoiceStatus = "PENDING" | "PAID" | "APPROVED" | "FAILED" | "DECLINED" | "ERROR" | "CANCELLED";
 
 interface InvoiceItemResponse {
   id: string;
@@ -19,6 +19,9 @@ interface InvoiceResponseData {
   customerEmail: string;
   customerPhone: string;
   customerAddress: string;
+  customerCountry: string;
+  customerCity: string;
+  customerDepartment: string;
   documentType: string;
   documentNumber: string;
   subtotal: number;
