@@ -2,11 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-    async rewrites() {
+  async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "https://backend.arrozandinagroup.com/api/:path*",
+        destination: process.env.NODE_ENV === "production"
+          ? "https://backend.arrozandinagroup.com/api/:path*"
+          : "http://localhost:4000/api/:path*", // ← tu puerto de Express local
       },
     ];
   }

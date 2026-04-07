@@ -25,12 +25,18 @@ interface CreateCheckoutResponse {
   };
 }
 
+// Mapa de claves internas → códigos que acepta Wompi
 const wompiLegalIdTypeMap: Record<string, string> = {
+  REGISTRO_CIVIL: "RC",
+  TARJETA_EXTRANJERIA: "TE",
   CEDULA_CIUDADANIA: "CC",
   CEDULA_EXTRANJERIA: "CE",
   NIT: "NIT",
-  PPT: "PP",
-  RIF: "CC",
+  PASAPORTE: "PP",
+  TARJETA_IDENTIDAD: "TI",
+  DNI: "CC",  // Wompi no tiene DNI, CC es el más cercano
+  CARTEIRA_IDENTIDADE: "CC", // Wompi no tiene RG, CC es el más cercano
+  OTRO: "CC",
 };
 
 export function CheckoutPayButton() {
@@ -52,7 +58,9 @@ export function CheckoutPayButton() {
         !checkoutForm.address.trim() ||
         !checkoutForm.email.trim() ||
         !checkoutForm.phone.trim() ||
-        !checkoutForm.city.trim()
+        !checkoutForm.city.trim()  ||
+        !checkoutForm.country.trim() ||
+        !checkoutForm.department.trim() 
       ) {
         throw new Error("Completa todos los datos del cliente");
       }
@@ -73,7 +81,6 @@ export function CheckoutPayButton() {
           })),
         }
       );
-
       if (!data?.ok || !data?.data) {
         throw new Error("No se pudo iniciar el pago");
       }
@@ -95,15 +102,15 @@ export function CheckoutPayButton() {
           email: wompiData.customerEmail || userData.email,
           fullName: userData.fullName,
           phoneNumber: userData.phone,
-          phoneNumberPrefix: "+57",
+          phoneNumberPrefix: userData.phonePrefix,
           legalId: userData.documentNumber,
           legalIdType: wompiLegalIdTypeMap[userData.documentType] ?? "CC",
         },
         shippingAddress: {
           addressLine1: userData.address,
-          country: "CO",
+          country: "CO",                  // ← siempre "CO" para Wompi (código ISO)
           city: userData.city,
-          region: "Norte de Santander",
+          region: userData.department,    // ← antes estaba hardcodeado
           phoneNumber: userData.phone,
           name: userData.fullName,
         },
@@ -120,7 +127,6 @@ export function CheckoutPayButton() {
       const checkout = new window.WidgetCheckout(checkoutConfig);
 
       checkout.open((result: WompiWidgetResult) => {
-        console.log("Wompi result:", result);
 
         const txStatus = result?.transaction?.status;
         const manualRedirectUrl =
@@ -143,7 +149,6 @@ export function CheckoutPayButton() {
         }, 800);
       });
     } catch (error: unknown) {
-      console.error(error);
 
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Error al iniciar el pago");

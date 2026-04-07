@@ -7,14 +7,25 @@ export interface CartItem extends ProductCardItem {
 
 export interface CheckoutFormData {
   fullName: string;
-  documentType: "CEDULA_CIUDADANIA" | "NIT" | "CEDULA_EXTRANJERIA" | "RIF" | "PPT";
+  documentType:
+    | "REGISTRO_CIVIL"
+    | "TARJETA_EXTRANJERIA"
+    | "CEDULA_CIUDADANIA"
+    | "CEDULA_EXTRANJERIA"
+    | "NIT"
+    | "PASAPORTE"
+    | "TARJETA_IDENTIDAD"
+    | "DNI"
+    | "CARTEIRA_IDENTIDADE"
+    | "OTRO"
+    | "";
   documentNumber: string;
   address: string;
   email: string;
   phone: string;
   phonePrefix: string;
   city: string;
-  region: string;
+  department: string;
   country: string;
 }
 
@@ -66,17 +77,16 @@ interface CartState {
 
 const initialCheckoutForm: CheckoutFormData = {
   fullName: "",
-  documentType: "CEDULA_CIUDADANIA",
+  documentType: "",
   documentNumber: "",
   address: "",
   email: "",
   phone: "",
   phonePrefix: "+57",
   city: "",
-  region: "",
-  country: "CO",
+  department: "",
+  country: "Colombia", // ← antes era "CO"
 };
-
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({

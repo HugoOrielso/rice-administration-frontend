@@ -22,12 +22,11 @@ export default function middleware(req: NextRequest) {
     (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
-  // ✅ usuario autenticado intentando entrar a ruta pública (excepto "/")
-  if (isAuthenticated && isPublicRoute && pathname !== "/") {
+
+  if (isAuthenticated && isPublicRoute) {
     return NextResponse.redirect(new URL(defaultAuthenticatedRoute, req.url));
   }
 
-  // ✅ usuario no autenticado intentando entrar a ruta privada
   if (!isAuthenticated && !isPublicRoute) {
     const signInUrl = new URL("/login", req.url);
     const callbackUrl = `${pathname}${search || ""}`;

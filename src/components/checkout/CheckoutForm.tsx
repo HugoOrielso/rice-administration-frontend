@@ -1,11 +1,12 @@
 "use client";
 
-import { CreditCard, Mail, MapPin, Phone, User, Building2, Globe } from "lucide-react";
+import { CreditCard, Mail, MapPin, Phone, User } from "lucide-react";
 import { CheckoutFormData, useCartStore } from "@/store/cart-store";
 import { CheckoutPayButton } from "./CheckoutButton";
-import { toast } from "sonner";
 import { documentTypeOptions } from "@/types/checkout";
 import { checkoutSchema } from "@/schemas/checkout.schema";
+import LocationSelector from "./LocationSelector";
+import { toast } from "sonner";
 
 interface CheckoutFormProps {
   form: CheckoutFormData;
@@ -14,6 +15,9 @@ interface CheckoutFormProps {
   onChange: (field: keyof CheckoutFormData, value: string) => void;
   onSubmit: () => void;
 }
+// @/types/checkout.ts
+
+export type DocumentTypeValue = typeof documentTypeOptions[number]["value"];
 export function CheckoutForm({
   onSubmit,
 }: CheckoutFormProps) {
@@ -24,6 +28,7 @@ export function CheckoutForm({
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    console.log(form)
     const result = checkoutSchema.safeParse({
       fullName: form.fullName,
       documentType: form.documentType,
@@ -33,10 +38,10 @@ export function CheckoutForm({
       phonePrefix: form.phonePrefix,
       phone: form.phone,
       city: form.city,
-      region: form.region,
+      department: form.department,
       country: form.country,
     });
-
+    console.log(result)
     if (!result.success) {
       const firstError = result.error.issues[0]?.message ?? "Datos inválidos";
       toast.error(firstError);
@@ -71,7 +76,7 @@ export function CheckoutForm({
                 onChange={(e) =>
                   setCheckoutField(
                     "documentType",
-                    e.target.value as typeof documentTypeOptions[number]["value"]
+                    e.target.value as DocumentTypeValue  // ← importa DocumentTypeValue en vez de lo anterior
                   )
                 }
                 className="col-span-1 rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-600"
@@ -152,50 +157,14 @@ export function CheckoutForm({
             </div>
           </FieldWrapper>
 
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <FieldWrapper label="Ciudad">
-              <div className="relative">
-                <Building2 className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={form.city}
-                  onChange={(e) => setCheckoutField("city", e.target.value)}
-                  placeholder="Bogotá"
-                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
-                  required
-                />
-              </div>
-            </FieldWrapper>
-
-            <FieldWrapper label="Departamento / Región">
-              <div className="relative">
-                <MapPin className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={form.region}
-                  onChange={(e) => setCheckoutField("region", e.target.value)}
-                  placeholder="Cundinamarca"
-                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
-                  required
-                />
-              </div>
-            </FieldWrapper>
-          </div>
-
-          <FieldWrapper label="País">
-            <div className="relative">
-              <Globe className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={form.country}
-                onChange={(e) => setCheckoutField("country", e.target.value.toUpperCase())}
-                placeholder="CO"
-                maxLength={2}
-                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-11 text-sm uppercase text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-600"
-                required
-              />
-            </div>
-          </FieldWrapper>
+          <LocationSelector
+            city={form.city}
+            region={form.department}
+            country={form.country}
+            onCityChange={(v) => setCheckoutField("city", v)}
+            onRegionChange={(v) => setCheckoutField("department", v)}
+            onCountryChange={(v) => setCheckoutField("country", v)}
+          />
 
           <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
             <p className="text-sm text-slate-600">Total a pagar</p>
