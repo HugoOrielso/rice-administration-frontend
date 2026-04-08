@@ -49,7 +49,7 @@ export function Hero() {
               href="#contacto"
               className="rounded-full border border-white/30 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/10"
             >
-              Solicitar pedido
+              Comprar ahora
             </a>
           </div>
 

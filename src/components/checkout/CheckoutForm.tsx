@@ -1,6 +1,6 @@
 "use client";
 
-import { CreditCard, Mail, MapPin, Phone, User } from "lucide-react";
+import { AlertTriangle, CreditCard, Mail, MapPin, Phone, User } from "lucide-react";
 import { CheckoutFormData, useCartStore } from "@/store/cart-store";
 import { CheckoutPayButton } from "./CheckoutButton";
 import { documentTypeOptions } from "@/types/checkout";
@@ -163,6 +163,20 @@ export function CheckoutForm({
             onRegionChange={(v) => setCheckoutField("department", v)}
             onCountryChange={(v) => setCheckoutField("country", v)}
           />
+
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex gap-3 items-start shadow-sm">
+            <AlertTriangle className="h-5 w-5 text-amber-500 mt-0.5" />
+
+            <div>
+              <p className="font-semibold text-amber-800">
+                Atención
+              </p>
+              <p className="text-sm text-amber-700 leading-relaxed">
+                Todos los pedidos se entregan en bodega en la siguiente dirección.
+              </p>
+              <p className="text-sm text-amber-700 leading-relaxed">Ave 1n lte 231 alonsito, San José De Cúcuta, Urb Molinos Iii</p>
+            </div>
+          </div>
 
           <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-4">
             <p className="text-sm text-slate-600">Total a pagar</p>
