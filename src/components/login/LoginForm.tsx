@@ -1,5 +1,6 @@
 "use client";
 import axiosClient from '@/lib/axios';
+import axios from 'axios';
 import { useRouter } from "next/navigation";
 import React, { useState } from 'react'
 import { toast } from 'sonner';
@@ -26,8 +27,16 @@ const LoginForm = () => {
             });
 
             router.replace("/dashboard")
-        } catch {
-            toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    toast.error("Credenciales inválidas");
+                } else {
+                    toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
+                }
+            } else {
+                toast.error("Ocurrió un error inesperado. Intenta de nuevo.");
+            }
         } finally {
             setIsLoading(false);
         }
