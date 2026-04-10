@@ -125,6 +125,21 @@ export function CheckoutPayButton() {
         checkoutConfig.taxInCents = wompiData.taxInCents;
       }
 
+      if (!wompiData.publicKey) {
+        toast.error("Error de configuración: clave pública no disponible");
+        setLoading(false);
+        return;
+      }
+
+      if (!wompiData.signature) {
+        toast.error("Error de configuración: firma no disponible");
+        setLoading(false);
+        return;
+      }
+
+      console.log("✅ publicKey:", wompiData.publicKey);
+      console.log("✅ signature:", wompiData.signature);
+
       const checkout = new window.WidgetCheckout(checkoutConfig);
 
       checkout.open((result: WompiWidgetResult) => {
