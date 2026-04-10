@@ -11,7 +11,10 @@ const nextConfig: NextConfig = {
           : "http://localhost:4000/api/:path*", // ← tu puerto de Express local
       },
     ];
-  }
+  },
+  generateBuildId: async () => {
+    return process.env.BUILD_ID || crypto.randomUUID()
+  },
 };
 
 export default nextConfig;
