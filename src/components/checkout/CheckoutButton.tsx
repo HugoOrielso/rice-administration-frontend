@@ -139,6 +139,7 @@ export function CheckoutPayButton() {
 
       console.log("✅ publicKey:", wompiData.publicKey);
       console.log("✅ signature:", wompiData.signature);
+      console.log("✅ signature:", wompiData.redirectUrl);
 
       const checkout = new window.WidgetCheckout(checkoutConfig);
 
