@@ -22,7 +22,7 @@ export default function ResultadoContent() {
     const router = useRouter();
     const alreadyHandledRef = useRef(false);
     const resetAll = useCartStore((state) => state.resetAll);
-    const invoiceIdentifier = params.get("reference");
+    const invoiceIdentifier = params.get("result");
 
     const [loading, setLoading] = useState(true);
     const [invoice, setInvoice] = useState<InvoiceResponseData | null>(null);

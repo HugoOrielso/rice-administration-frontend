@@ -4,9 +4,9 @@ export function StatusMessage({ status }: { status: InvoiceStatus }) {
     const messages: Record<InvoiceStatus, string> = {
         PAID:      "Tu pedido ha sido confirmado y está siendo procesado.",
         APPROVED:  "Tu pedido ha sido confirmado y está siendo procesado.",
-        PENDING:   "Estamos verificando tu pago. Te notificaremos cuando se confirme.",
+        PENDING:   "Estamos verificando tu pago.",
         DECLINED:  "Tu banco declinó el pago. Intenta con otra tarjeta o método de pago.",
-        ERROR:     "Hubo un error procesando tu pago. Por favor intenta nuevamente.",
+        ERROR:     "Hubo un error procesando tu pago. Por favor intenta nuevamente o genera otra compra.",
         CANCELLED: "El pago fue cancelado. Puedes volver e intentarlo de nuevo.",
         REFUNDED:  "Tu reembolso está siendo procesado. Puede tardar algunos días hábiles.",
         EXPIRED:   "El enlace de pago venció. Por favor genera un nuevo pedido.",
