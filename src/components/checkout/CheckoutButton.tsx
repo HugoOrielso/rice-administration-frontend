@@ -51,10 +51,6 @@ export function CheckoutPayButton() {
         throw new Error("El script de Wompi aún no está cargado");
       }
 
-      // ✅ Log 1: ver qué datos del form se van a enviar
-      console.log("🧾 checkoutForm:", JSON.stringify(checkoutForm, null, 2));
-      console.log("🛒 cart:", JSON.stringify(cart, null, 2));
-
       if (
         !checkoutForm.fullName.trim() ||
         !checkoutForm.documentType.trim() ||
@@ -85,9 +81,6 @@ export function CheckoutPayButton() {
           })),
         }
       );
-
-      // ✅ Log 2: ver qué devuelve el backend
-      console.log("📦 respuesta backend:", JSON.stringify(data, null, 2));
 
       if (!data?.ok || !data?.data) {
         throw new Error("No se pudo iniciar el pago");
@@ -124,9 +117,6 @@ export function CheckoutPayButton() {
         },
       };
 
-      // ✅ Log 3: config exacta que se le pasa al widget
-      console.log("💳 checkoutConfig:", JSON.stringify(checkoutConfig, null, 2));
-
       if (wompiData.expirationTime) {
         checkoutConfig.expirationTime = wompiData.expirationTime;
       }
@@ -139,10 +129,7 @@ export function CheckoutPayButton() {
 
       checkout.open((result: WompiWidgetResult) => {
         // ✅ Log 4: ver el resultado completo del widget
-        console.log("🔔 resultado widget:", JSON.stringify(result, null, 2));
-
         const txStatus = result?.transaction?.status;
-        console.log("📊 txStatus:", txStatus);
 
         const manualRedirectUrl =
           wompiData.redirectUrl ||
