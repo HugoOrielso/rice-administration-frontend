@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axiosClientPublic from "@/lib/axiosPublic";
 import { useCartStore } from "@/store/cart-store";
 import { InvoiceStatus } from "@/types/checkout";
@@ -18,11 +18,12 @@ interface InvoiceApiResponse {
 
 
 export default function ResultadoContent() {
-    const params = useSearchParams();
+    const routeParams = useParams();
     const router = useRouter();
+
+    const invoiceIdentifier = routeParams.result as string;
     const alreadyHandledRef = useRef(false);
     const resetAll = useCartStore((state) => state.resetAll);
-    const invoiceIdentifier = params.get("result");
 
     const [loading, setLoading] = useState(true);
     const [invoice, setInvoice] = useState<InvoiceResponseData | null>(null);
