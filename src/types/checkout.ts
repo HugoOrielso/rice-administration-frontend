@@ -25,3 +25,13 @@ export const documentTypeOptions = [
   { value: "OTRO",               label: "Otro" },
 ] as const;
 
+
+export type InvoiceStatus =
+    | "PAID"
+    | "APPROVED"
+    | "PENDING"
+    | "DECLINED"
+    | "ERROR"
+    | "CANCELLED"
+    | "REFUNDED"
+    | "EXPIRED";

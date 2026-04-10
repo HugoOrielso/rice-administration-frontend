@@ -4,49 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axiosClientPublic from "@/lib/axiosPublic";
 import { useCartStore } from "@/store/cart-store";
-import Image from "next/image";
-import Link from "next/link";
+import { InvoiceStatus } from "@/types/checkout";
+import { StatusMessage } from "./statusMessage";
+import { StatusBadge } from "./statusBadge";
+import { StatusTitle } from "./statusTitle";
+import { SimpleHeader } from "./header";
 
 interface InvoiceApiResponse {
     ok: boolean;
     data: InvoiceResponseData;
 }
 
-function SimpleHeader() {
-    return (
-        <div className="w-full bg-white border-b shadow-sm py-4 px-6 flex items-center">
-            <Link href="/" className="flex items-center gap-4">
-                <div className="relative h-12 w-12 shrink-0 sm:h-14 sm:w-14">
-                    <Image
-                        src="/assets/logo.png"
-                        alt="Logo Andina Group"
-                        fill
-                        priority
-                        sizes="56px"
-                        className="object-contain"
-                    />
-                </div>
 
-                <div>
-                    <p className="text-lg font-extrabold tracking-tight text-(--color-brand-green)">
-                        Andina group & Capital S.A.S
-                    </p>
-                    <p className="text-sm text-slate-500">
-                        Tradición, calidad y confianza
-                    </p>
-                </div>
-            </Link>
-        </div>
-    );
-}
 
 export default function ResultadoContent() {
     const params = useSearchParams();
     const router = useRouter();
     const alreadyHandledRef = useRef(false);
-
     const resetAll = useCartStore((state) => state.resetAll);
-
     const invoiceIdentifier = params.get("reference");
 
     const [loading, setLoading] = useState(true);
@@ -71,9 +46,7 @@ export default function ResultadoContent() {
                 const invoiceData = data.data;
                 setInvoice(invoiceData);
 
-                const isPaid =
-                    invoiceData.status === "PAID" ||
-                    invoiceData.status === "APPROVED";
+                const isPaid = invoiceData.status === "PAID" || invoiceData.status === "APPROVED";
 
                 if (isPaid && !alreadyHandledRef.current) {
                     alreadyHandledRef.current = true;
@@ -121,13 +94,8 @@ export default function ResultadoContent() {
         );
     }
 
-    const isPaid =
-        invoice.status === "PAID" || invoice.status === "APPROVED";
-
-    const isRejected =
-        invoice.status === "FAILED" ||
-        invoice.status === "DECLINED" ||
-        invoice.status === "ERROR";
+    const status = invoice.status as InvoiceStatus;
+    const isPaid = status === "PAID" || status === "APPROVED";
 
     return (
         <div className="min-h-screen bg-linear-to-br from-[#0f5c3b] via-[#0d6b3f] to-[#1f7a3a]">
@@ -135,34 +103,18 @@ export default function ResultadoContent() {
 
             <div className="flex justify-center px-4 py-10">
                 <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-8">
-                    <div className="text-center mb-6">
-                        <h1 className="text-2xl font-bold text-gray-800">
-                            {isPaid ? "🎉 ¡Gracias por tu compra!" : "Gracias por tu pedido"}
-                        </h1>
 
-                        <p className="text-gray-500 mt-2">
-                            Factura #{invoice.invoiceNumber}
-                        </p>
+                    <div className="text-center mb-2">
+                        <StatusTitle status={status} />
+                        <p className="text-gray-500 mt-2">Factura #{invoice.invoiceNumber}</p>
+                    </div>
+
+                    <div className="text-center mb-2">
+                        <StatusBadge status={status} />
                     </div>
 
                     <div className="text-center mb-6">
-                        {isPaid && (
-                            <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                                Pago aprobado
-                            </span>
-                        )}
-
-                        {invoice.status === "PENDING" && (
-                            <span className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-semibold">
-                                Pago pendiente
-                            </span>
-                        )}
-
-                        {isRejected && (
-                            <span className="px-4 py-2 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
-                                Pago no aprobado
-                            </span>
-                        )}
+                        <StatusMessage status={status} />
                     </div>
 
                     <div className="mb-6 space-y-1">
@@ -176,28 +128,19 @@ export default function ResultadoContent() {
                     </div>
 
                     <div className="border-t pt-4">
-                        <h2 className="font-semibold mb-3 text-gray-800">
-                            Detalle del pedido
-                        </h2>
+                        <h2 className="font-semibold mb-3 text-gray-800">Detalle del pedido</h2>
 
                         {invoice.items.map((item: InvoiceItemResponse) => (
-                            <div
-                                key={item.id}
-                                className="flex justify-between py-3 border-b"
-                            >
+                            <div key={item.id} className="flex justify-between py-3 border-b">
                                 <div>
                                     <p className="font-medium text-gray-800">{item.productName}</p>
-                                    <p className="text-sm text-gray-500">
-                                        Cantidad: {item.quantity}
-                                    </p>
-
+                                    <p className="text-sm text-gray-500">Cantidad: {item.quantity}</p>
                                     {item.packageLabel && (
                                         <p className="text-sm text-gray-500">
                                             Presentación: {item.packageLabel}
                                         </p>
                                     )}
                                 </div>
-
                                 <p className="font-semibold text-gray-800">
                                     ${item.lineTotal.toLocaleString("es-CO")}
                                 </p>
@@ -210,7 +153,6 @@ export default function ResultadoContent() {
                             <span>Subtotal</span>
                             <span>${invoice.subtotal.toLocaleString("es-CO")}</span>
                         </div>
-
                         <div className="flex justify-between text-lg font-bold text-gray-800">
                             <span>Total</span>
                             <span>${invoice.total.toLocaleString("es-CO")}</span>
@@ -220,7 +162,7 @@ export default function ResultadoContent() {
                     <div className="mt-8 flex gap-3">
                         <button
                             onClick={() => router.push("/")}
-                            className="flex-1 px-5 py-3 bg-black text-white rounded-xl cursor-pointer"
+                            className={`px-5 py-3 rounded-xl cursor-pointer ${isPaid ? "flex-1 bg-black text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                         >
                             Volver al inicio
                         </button>

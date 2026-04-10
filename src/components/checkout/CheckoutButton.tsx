@@ -9,35 +9,11 @@ import { toast } from "sonner";
 interface CreateCheckoutResponse {
   ok: boolean;
   data: {
+    paymentUrl: string;
     reference: string;
-    invoiceNumber: string;
-    amountInCents: number;
-    currency: string;
-    publicKey: string;
-    customerEmail: string;
-    redirectUrl: string;
-    signature: string;
-    expirationTime?: string;
-    taxInCents?: {
-      vat?: number;
-      consumption?: number;
-    };
+    invoiceId: string;
   };
 }
-
-// Mapa de claves internas → códigos que acepta Wompi
-const wompiLegalIdTypeMap: Record<string, string> = {
-  REGISTRO_CIVIL: "RC",
-  TARJETA_EXTRANJERIA: "TE",
-  CEDULA_CIUDADANIA: "CC",
-  CEDULA_EXTRANJERIA: "CE",
-  NIT: "NIT",
-  PASAPORTE: "PP",
-  TARJETA_IDENTIDAD: "TI",
-  DNI: "CC",  // Wompi no tiene DNI, CC es el más cercano
-  CARTEIRA_IDENTIDADE: "CC", // Wompi no tiene RG, CC es el más cercano
-  OTRO: "CC",
-};
 
 export function CheckoutPayButton() {
   const [loading, setLoading] = useState(false);
@@ -47,10 +23,6 @@ export function CheckoutPayButton() {
 
   const handlePay = async () => {
     try {
-      if (typeof window === "undefined" || !window.WidgetCheckout) {
-        throw new Error("El script de Wompi aún no está cargado");
-      }
-
       if (
         !checkoutForm.fullName.trim() ||
         !checkoutForm.documentType.trim() ||
@@ -58,15 +30,18 @@ export function CheckoutPayButton() {
         !checkoutForm.address.trim() ||
         !checkoutForm.email.trim() ||
         !checkoutForm.phone.trim() ||
+        !checkoutForm.phonePrefix.trim() ||
         !checkoutForm.city.trim() ||
         !checkoutForm.country.trim() ||
         !checkoutForm.department.trim()
       ) {
-        throw new Error("Completa todos los datos del cliente");
+        toast.error("Completa todos los datos del cliente");
+        return;
       }
 
       if (cart.length === 0) {
-        throw new Error("Tu carrito está vacío");
+        toast.error("Tu carrito está vacío");
+        return;
       }
 
       setLoading(true);
@@ -82,91 +57,13 @@ export function CheckoutPayButton() {
         }
       );
 
-      if (!data?.ok || !data?.data) {
+      if (!data?.ok || !data?.data?.paymentUrl) {
         throw new Error("No se pudo iniciar el pago");
       }
 
-      const userData = checkoutForm;
-      const wompiData = data.data;
+      window.location.assign(data.data.paymentUrl);
 
-      const checkoutConfig: WidgetCheckoutOptions = {
-        currency: wompiData.currency,
-        amountInCents: wompiData.amountInCents,
-        reference: wompiData.reference,
-        publicKey: wompiData.publicKey,
-        signature: {
-          integrity: wompiData.signature,
-        },
-        redirectUrl: wompiData.redirectUrl,
-        widgetOperation: "purchase",
-        customerData: {
-          email: wompiData.customerEmail || userData.email,
-          fullName: userData.fullName,
-          phoneNumber: userData.phone,
-          phoneNumberPrefix: userData.phonePrefix,
-          legalId: userData.documentNumber,
-          legalIdType: wompiLegalIdTypeMap[userData.documentType] ?? "CC",
-        },
-        shippingAddress: {
-          addressLine1: userData.address,
-          country: "CO",
-          city: userData.city,
-          region: userData.department,
-          phoneNumber: userData.phone,
-          name: userData.fullName,
-        },
-      };
-
-      if (wompiData.expirationTime) {
-        checkoutConfig.expirationTime = wompiData.expirationTime;
-      }
-
-      if (wompiData.taxInCents) {
-        checkoutConfig.taxInCents = wompiData.taxInCents;
-      }
-
-      if (!wompiData.publicKey) {
-        toast.error("Error de configuración: clave pública no disponible");
-        setLoading(false);
-        return;
-      }
-
-      if (!wompiData.signature) {
-        toast.error("Error de configuración: firma no disponible");
-        setLoading(false);
-        return;
-      }
-
-      console.log("✅ publicKey:", wompiData.publicKey);
-      console.log("✅ signature:", wompiData.signature);
-      console.log("✅ signature:", wompiData.redirectUrl);
-
-      const checkout = new window.WidgetCheckout(checkoutConfig);
-
-      checkout.open((result: WompiWidgetResult) => {
-        // ✅ Log 4: ver el resultado completo del widget
-        const txStatus = result?.transaction?.status;
-
-        const manualRedirectUrl =
-          wompiData.redirectUrl ||
-          `/checkout/resultado?invoiceNumber=${wompiData.invoiceNumber}`;
-
-        if (txStatus === "APPROVED" || txStatus === "PENDING") {
-          window.location.assign(manualRedirectUrl);
-          return;
-        }
-
-        if (txStatus === "DECLINED" || txStatus === "ERROR") {
-          toast.error("El pago no fue aprobado");
-          return;
-        }
-
-        setTimeout(() => {
-          window.location.assign(manualRedirectUrl);
-        }, 800);
-      });
     } catch (error: unknown) {
-      // ✅ Log 5: ver el error completo
       console.error("❌ error en handlePay:", error);
 
       if (axios.isAxiosError(error)) {
